@@ -44,7 +44,7 @@ namespace NMines
             {
                 for (int j = 0; j < map.ColsCount; j++)
                 {
-                    Cell cell = new Cell(size: cellSize, value: map.Field[i, j]);               
+                    Cell cell = new Cell(this, size: cellSize, value: map.Field[i, j]);               
 
                     cell.SizeChanged += (sender, e) => MakeSquare(cell);
 
@@ -62,15 +62,8 @@ namespace NMines
             {
                 for (int j = 0; j < map.ColsCount; j++)
                 {
-                    cells[i, j].Reset();
-
-                    if (map.Field[i, j] == -1)
-                    {
-                        cells[i, j].Text = "*";
-                        cells[i, j].BackColor = Color.Red;
-                    }
-                    else if (map.Field[i, j] != 0)
-                        cells[i, j].Text = Convert.ToString(map.Field[i, j]);
+                    cells[i, j].SetToDefault();
+                    cells[i, j].value = map.Field[i, j];
                 }
             }
         }
@@ -99,6 +92,25 @@ namespace NMines
 
             for (int j = 0; j < ColumnCount; j++)
                 ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / map.ColsCount));
+        }
+
+
+        public void RevealCells()
+        {
+            for (int i = 0; i < map.RowsCount; i++)
+            {
+                for (int j = 0; j < map.ColsCount; j++)
+                {
+                    if (map.Field[i, j] == -1)
+                    {
+                        cells[i, j].Text = "*";
+                        cells[i, j].BackColor = Color.Red;
+                    }
+                    else if (map.Field[i, j] != 0)
+                        cells[i, j].Text = Convert.ToString(map.Field[i, j]);
+                    cells[i, j].Enabled = false;
+                }
+            }
         }
 
 

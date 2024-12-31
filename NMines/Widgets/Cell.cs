@@ -1,55 +1,65 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace NMines.Widgets
 {
     public class Cell : Button
     {
-        private int value;
+        private MapWidget mapWidget;
+        public int value { get; set; }
+
         private bool isVisited;
         private bool isFlagged;
 
-        public Cell(int value, int size)
+        public Cell(MapWidget mapWidget, int value, int size)
         {
+            this.mapWidget = mapWidget;
             this.value = value;
 
             Dock = DockStyle.Fill;
             MinimumSize = new Size(size, size);
             Font = new Font("Segoe UI", 14);
-            Click += Cell_Click;
             MouseDown += Cell_MouseDown;
 
-            SetTextAndColor();    
-            //Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right,
-            //Margin = new Padding(5, 0, 5, 0),
             //Tag = new Point(i, j),
             //Location = new Point(j * cellSize + xPad, i * cellSize + topFieldHeight + yPad);
             // button.Size = new Size(cellSize, cellSize);
         }
 
-        private void Cell_Click(object sender, EventArgs e)
-        {
-            if (value == -1)
-                MessageBox.Show("Вы проиграли!");
-        }
-
         private void Cell_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            switch (e.Button)
             {
-                if (!isFlagged)
+                case MouseButtons.Left:
                 {
-                    PutFlag();
-                    isFlagged = true;
+                    Button pressedButton = sender as Button;
+                    pressedButton.Enabled = false;
+                    SetTextAndColor();
+                    if (value == -1)
+                    {
+                        MessageBox.Show("Вы проиграли!");
+                        mapWidget.RevealCells();
+                    }
+                    else
+                        BackColor = Color.White;
+                    break;
                 }
-                else
+                case MouseButtons.Right:
                 {
-                    RemoveFlag();
-                    isFlagged = false;
+                    if (!isFlagged)
+                    {
+                        PutFlag();
+                        isFlagged = true;
+                    }
+                    else
+                    {
+                        RemoveFlag();
+                        isFlagged = false;
+                    }
+                    break;
                 }
-            }            
+            }           
         }
 
         private void SetTextAndColor()
@@ -92,11 +102,11 @@ namespace NMines.Widgets
             // меняем image с флага на значение в клетке
         }
 
-        public void Reset()
+        public void SetToDefault()
         {
-            value = 0;
             BackColor = Color.WhiteSmoke;
             Text = "";
+            Enabled = true;
         }
     }
 }
