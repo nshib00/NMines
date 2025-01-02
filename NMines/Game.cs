@@ -53,7 +53,7 @@ namespace NMines
                 RowCount = 1,
             };
 
-           // layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));
+            // layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
@@ -104,14 +104,14 @@ namespace NMines
         private void restartButton_Click(object sender, EventArgs e)
         {
             map.InitField();
-            map.SeedMines();
-            map.CountMinesAroundCells();
             mapWidget.UpdateCells();
+            mapWidget.Map.isFirstStep = true;
         }
 
         public void Init(MainForm form)
         {
             SetupGame();
+
 
             TableLayoutPanel mainLayout = new TableLayoutPanel()
             {
@@ -129,8 +129,8 @@ namespace NMines
             map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
             mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad, config.TopFieldHeight);
             map.InitField();
-            map.SeedMines();
-            map.CountMinesAroundCells();
+            //map.SeedMines();
+            //map.CountMinesAroundCells();
 
             mapWidget.ConfigureSize();
             mapWidget.InitCells();

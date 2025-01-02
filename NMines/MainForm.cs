@@ -11,7 +11,6 @@ namespace NMines
         private const GameLevel gameLevel = GameLevel.HARD;
         public Game game = new Game(gameLevel);
 
-        
         public MainForm()
         {
             InitializeComponent();

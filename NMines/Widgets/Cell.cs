@@ -20,22 +20,30 @@ namespace NMines.Widgets
             Dock = DockStyle.Fill;
             MinimumSize = new Size(size, size);
             Font = new Font("Segoe UI", 14);
-            MouseDown += Cell_MouseDown;
+            MouseUp += new MouseEventHandler(Cell_MouseUp);
 
+            Text = value.ToString();
             //Tag = new Point(i, j),
             //Location = new Point(j * cellSize + xPad, i * cellSize + topFieldHeight + yPad);
             // button.Size = new Size(cellSize, cellSize);
         }
 
-        private void Cell_MouseDown(object sender, MouseEventArgs e)
+        private void Cell_MouseUp(object sender, MouseEventArgs e)
         {
             switch (e.Button)
             {
                 case MouseButtons.Left:
                 {
-                    Button pressedButton = sender as Button;
-                    pressedButton.Enabled = false;
-                    SetTextAndColor();
+                    if (mapWidget.Map.isFirstStep)
+                    {
+                        mapWidget.Map.SeedMines();
+                        mapWidget.Map.CountMinesAroundCells();
+                        mapWidget.UpdateCells();
+                        mapWidget.Map.isFirstStep = false;
+                    }
+                    this.SetTextAndColor();
+                    this.Enabled = false;
+                    
                     if (value == -1)
                     {
                         MessageBox.Show("Вы проиграли!");
@@ -50,17 +58,20 @@ namespace NMines.Widgets
                     if (!isFlagged)
                     {
                         PutFlag();
+                        // minesCountLabel value--
                         isFlagged = true;
                     }
                     else
                     {
                         RemoveFlag();
+                        //minesCountLabel value++
                         isFlagged = false;
                     }
                     break;
                 }
             }           
         }
+
 
         private void SetTextAndColor()
         {

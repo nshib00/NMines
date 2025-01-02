@@ -9,7 +9,7 @@ namespace NMines
     {
         private MainForm form;
 
-        private Map map;
+        public Map Map { get; private set; }
         private int cellSize;
         private int xPad;
         private int yPad;
@@ -21,18 +21,18 @@ namespace NMines
         public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad, int topFieldHeight)
         {
             this.form = form;
-            this.map = map;
+            this.Map = map;
             this.cellSize = cellSize;
             this.xPad = xPad;
             this.yPad = yPad;
             this.topFieldHeight = topFieldHeight;
 
-            RowCount = map.RowsCount;
-            ColumnCount = map.ColsCount;
+            RowCount = Map.RowsCount;
+            ColumnCount = Map.ColsCount;
 
             Anchor = AnchorStyles.Top;
 
-            cells = new Cell[map.RowsCount, map.ColsCount];
+            cells = new Cell[Map.RowsCount, Map.ColsCount];
 
             AddStyles();
             Render();
@@ -40,11 +40,11 @@ namespace NMines
 
         public void InitCells()
         {
-            for (int i = 0; i < map.RowsCount; i++)
+            for (int i = 0; i < Map.RowsCount; i++)
             {
-                for (int j = 0; j < map.ColsCount; j++)
+                for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    Cell cell = new Cell(this, size: cellSize, value: map.Field[i, j]);               
+                    Cell cell = new Cell(this, size: cellSize, value: Map.Field[i, j]);               
 
                     cell.SizeChanged += (sender, e) => MakeSquare(cell);
 
@@ -58,12 +58,13 @@ namespace NMines
 
         public void UpdateCells()
         {
-            for (int i = 0; i < map.RowsCount; i++)
+            for (int i = 0; i < Map.RowsCount; i++)
             {
-                for (int j = 0; j < map.ColsCount; j++)
+                for (int j = 0; j < Map.ColsCount; j++)
                 {
                     cells[i, j].SetToDefault();
-                    cells[i, j].value = map.Field[i, j];
+                    cells[i, j].value = Map.Field[i, j];
+                    cells[i, j].Text = cells[i, j].value.ToString();
                 }
             }
         }
@@ -78,8 +79,8 @@ namespace NMines
 
         public void ConfigureSize()
         {
-            this.Width = map.ColsCount * cellSize + 5;
-            this.Height = map.RowsCount * cellSize + topFieldHeight + 20;
+            this.Width = Map.ColsCount * cellSize + 5;
+            this.Height = Map.RowsCount * cellSize + topFieldHeight + 20;
 
             form.Width = this.Width + 30;
             form.Height = this.Height + 30;
@@ -88,26 +89,26 @@ namespace NMines
         private void AddStyles()
         {
             for (int i = 0; i < RowCount; i++)
-                RowStyles.Add(new RowStyle(SizeType.Percent, 100f / map.RowsCount));
+                RowStyles.Add(new RowStyle(SizeType.Percent, 100f / Map.RowsCount));
 
             for (int j = 0; j < ColumnCount; j++)
-                ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / map.ColsCount));
+                ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / Map.ColsCount));
         }
 
 
         public void RevealCells()
         {
-            for (int i = 0; i < map.RowsCount; i++)
+            for (int i = 0; i < Map.RowsCount; i++)
             {
-                for (int j = 0; j < map.ColsCount; j++)
+                for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    if (map.Field[i, j] == -1)
+                    if (Map.Field[i, j] == -1)
                     {
                         cells[i, j].Text = "*";
                         cells[i, j].BackColor = Color.Red;
                     }
-                    else if (map.Field[i, j] != 0)
-                        cells[i, j].Text = Convert.ToString(map.Field[i, j]);
+                    else if (Map.Field[i, j] != 0)
+                        cells[i, j].Text = Convert.ToString(Map.Field[i, j]);
                     cells[i, j].Enabled = false;
                 }
             }

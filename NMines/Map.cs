@@ -10,10 +10,10 @@ namespace NMines
     {
         public int RowsCount { get; }
         public int ColsCount { get; }
-
-
         private int MinesCount { get; }
         public int[,] Field { get; }
+
+        public bool isFirstStep = true;
 
         public Map(int rowsCount, int colsCount, int minesCount)
         {
