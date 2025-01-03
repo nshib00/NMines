@@ -8,9 +8,8 @@ namespace NMines.Widgets
     {
         private MapWidget mapWidget;
         public int value { get; set; }
-
-        private bool isVisited;
-        private bool isFlagged;
+        public bool isVisited;
+        public bool isFlagged { get; private set; }
 
         public Cell(MapWidget mapWidget, int value, int size)
         {
@@ -81,7 +80,7 @@ namespace NMines.Widgets
                 isFlagged = false;
                 SetClosed();
             }
-            if (mapWidget.GetMinesCount() == 0)
+            if (mapWidget.CountFlaggedMines() == mapWidget.Map.MinesCount)
             {
                 mapWidget.RevealCells();
                 MessageBox.Show("You win!");

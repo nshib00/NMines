@@ -10,7 +10,7 @@ namespace NMines.Widgets
         public static Label TimeLabel { get; private set; }
         public static Label MinesCountLabel { get; private set; }
         public Button RestartButton { get; private set; }
-
+       
         public static int TopFieldHeight { get; private set; }
 
         public GameUI(GameConfig config)

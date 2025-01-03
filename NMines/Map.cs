@@ -19,7 +19,7 @@ namespace NMines
     {
         public int RowsCount { get; }
         public int ColsCount { get; }
-        private int MinesCount { get; }
+        public int MinesCount { get; }
         public MapCell[,] Field { get; }
 
         public bool isFirstStep = true;

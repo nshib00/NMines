@@ -157,5 +157,21 @@ namespace NMines
         }
 
 
+        public int CountFlaggedMines()
+        {
+            int flaggedMines = 0;
+
+            for (int i = 0; i < Map.RowsCount; i++)
+            {
+                for (int j = 0; j < Map.ColsCount; j++)
+                {
+                    if (cells[i, j].isFlagged && cells[i, j].value == -1)
+                        flaggedMines++;
+                }
+            }
+            return flaggedMines;
+        }
+
+
     }
 }
