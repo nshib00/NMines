@@ -23,8 +23,6 @@ namespace NMines.Widgets
             MouseUp += new MouseEventHandler(Cell_MouseUp);
 
             Text = value.ToString();
-            //Location = new Point(j * cellSize + xPad, i * cellSize + topFieldHeight + yPad);
-            // button.Size = new Size(cellSize, cellSize);
         }
 
         private void Cell_MouseUp(object sender, MouseEventArgs e)
@@ -63,7 +61,7 @@ namespace NMines.Widgets
             if (value == -1)
             {
                 mapWidget.RevealCells();
-                MessageBox.Show("Вы проиграли!");
+                MessageBox.Show("You lose.");
             }
             else
                 BackColor = Color.White;
@@ -83,7 +81,12 @@ namespace NMines.Widgets
                 RemoveFlag();
                 mapWidget.IncreaseMinesCount();
                 isFlagged = false;
-                SetTextAndColor();
+                SetClosed();
+            }
+            if (mapWidget.GetMinesCount() == 0)
+            {
+                mapWidget.RevealCells();
+                MessageBox.Show("You win!");
             }
         }
 
@@ -100,6 +103,13 @@ namespace NMines.Widgets
                 Text = value.ToString();
                 BackColor = Color.WhiteSmoke;
             } 
+        }
+
+
+        private void SetClosed()
+        {
+            Text = "";
+            BackColor = Color.WhiteSmoke;
         }
 
 

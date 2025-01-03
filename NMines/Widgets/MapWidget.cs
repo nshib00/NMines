@@ -142,15 +142,19 @@ namespace NMines
 
         public void IncreaseMinesCount()
         {
-            int minesCount = int.Parse(GameUI.MinesCountLabel.Text);
-            GameUI.MinesCountLabel.Text = (minesCount + 1).ToString();
+            GameUI.MinesCountLabel.Text = (GetMinesCount() + 1).ToString();
         }
 
         public void DecreaseMinesCount()
         {
-            int minesCount = int.Parse(GameUI.MinesCountLabel.Text);
-            GameUI.MinesCountLabel.Text = (minesCount - 1).ToString();
+            GameUI.MinesCountLabel.Text = (GetMinesCount() - 1).ToString();
         }
+
+        public int GetMinesCount()
+        {
+            return int.Parse(GameUI.MinesCountLabel.Text);
+        }
+
 
     }
 }
