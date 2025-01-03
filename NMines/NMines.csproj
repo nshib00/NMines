@@ -59,6 +59,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Map.cs" />
+    <Compile Include="Widgets\GameUI.cs" />
     <Compile Include="Widgets\MapWidget.cs">
       <SubType>Component</SubType>
     </Compile>
