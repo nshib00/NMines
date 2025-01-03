@@ -87,7 +87,7 @@ namespace NMines
             }
         }
 
-        private bool IsInBorder(int i, int j)
+        public bool IsInBorder(int i, int j)
         {
             if (i < 0 || j < 0 || i > RowsCount - 1 || j > ColsCount - 1)
                 return false;

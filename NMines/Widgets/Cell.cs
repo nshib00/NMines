@@ -39,7 +39,6 @@ namespace NMines.Widgets
             }           
         }
 
-
         private void OnLeftButtonClick()
         {
             if (mapWidget.Map.isFirstStep)
@@ -52,6 +51,7 @@ namespace NMines.Widgets
                 mapWidget.UpdateCells();
                 mapWidget.Map.isFirstStep = false;
             }
+
             this.SetTextAndColor();
             this.Enabled = false;
 
@@ -61,8 +61,10 @@ namespace NMines.Widgets
                 MessageBox.Show("You lose.");
             }
             else
+            {
                 BackColor = Color.White;
-            mapWidget.OpenCell(this);
+                mapWidget.OpenCellWithEmptyNeighbors(this);
+            } 
         }
 
         private void OnRightButtonClick()
@@ -88,7 +90,7 @@ namespace NMines.Widgets
         }
 
 
-        private void SetTextAndColor()
+        public void SetTextAndColor()
         {
             if (value == -1)
             {
@@ -140,6 +142,16 @@ namespace NMines.Widgets
             BackColor = Color.WhiteSmoke;
             Text = "";
             Enabled = true;
+        }
+
+        public int GetRowIndex()
+        {
+            return ((Point)Tag).X;
+        }
+
+        public int GetColumnIndex()
+        {
+            return ((Point)Tag).Y;
         }
     }
 }

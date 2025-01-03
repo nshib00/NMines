@@ -97,13 +97,6 @@ namespace NMines
                 ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / Map.ColsCount));
         }
 
-        public void OpenCell(Cell cell)
-        {
-            int rowIndex = ((Point)cell.Tag).X;
-            int columnIndex = ((Point)cell.Tag).Y;
-            OpenCell(rowIndex, columnIndex);
-        }
-
         public void OpenCell(int rowIndex, int columnIndex)
         {
             if (Map.Field[rowIndex, columnIndex].Value == -1)
@@ -116,6 +109,44 @@ namespace NMines
 
             Map.Field[rowIndex, columnIndex].IsOpened = true;
             cells[rowIndex, columnIndex].Enabled = false;
+        }
+
+        public void OpenCell(Cell cell)
+        {
+            int rowIndex = cell.GetRowIndex();
+            int columnIndex = cell.GetColumnIndex();
+            OpenCell(rowIndex, columnIndex);
+        }
+
+        public void OpenCellWithEmptyNeighbors(Cell cell)
+        {
+            if (cell.value > 0)
+                return;
+
+            cell.SetTextAndColor();
+            cell.Enabled = false;
+
+            int row = cell.GetRowIndex();
+            int col = cell.GetColumnIndex();
+
+            for (int i = row - 1; i <= row + 1; i++)
+            {
+                for (int j = col - 1; j <= col + 1; j++)
+                {
+                    if (!Map.IsInBorder(i, j))
+                        continue;
+
+                    Cell neighbor = cells[i, j];
+
+                    if (neighbor.isFlagged || !neighbor.Enabled)
+                        continue;
+
+                    if (neighbor.value == 0)
+                        OpenCellWithEmptyNeighbors(neighbor);
+                    OpenCell(neighbor);
+                }
+            }
+
         }
 
 
