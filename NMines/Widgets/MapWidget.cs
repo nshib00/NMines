@@ -140,7 +140,17 @@ namespace NMines
             this.Controls.Clear();   
         }
 
+        public void IncreaseMinesCount()
+        {
+            int minesCount = int.Parse(GameUI.MinesCountLabel.Text);
+            GameUI.MinesCountLabel.Text = (minesCount + 1).ToString();
+        }
 
+        public void DecreaseMinesCount()
+        {
+            int minesCount = int.Parse(GameUI.MinesCountLabel.Text);
+            GameUI.MinesCountLabel.Text = (minesCount - 1).ToString();
+        }
 
     }
 }

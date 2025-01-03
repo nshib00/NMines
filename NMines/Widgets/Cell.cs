@@ -61,13 +61,13 @@ namespace NMines.Widgets
                     if (!isFlagged)
                     {
                         PutFlag();
-                        // minesCountLabel value--
+                        mapWidget.DecreaseMinesCount();
                         isFlagged = true;
                     }
                     else
                     {
                         RemoveFlag();
-                        //minesCountLabel value++
+                        mapWidget.IncreaseMinesCount();
                         isFlagged = false;
                     }
                     break;
