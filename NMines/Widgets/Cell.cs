@@ -33,46 +33,58 @@ namespace NMines.Widgets
             {
                 case MouseButtons.Left:
                 {
-                    if (mapWidget.Map.isFirstStep)
-                    {
-                        int firstMoveX = ((Point)Tag).X;
-                        int firstMoveY = ((Point)Tag).Y;
-
-                        mapWidget.Map.SeedMines(firstMoveX, firstMoveY);
-                        mapWidget.Map.CountMinesAroundCells();
-                        mapWidget.UpdateCells();
-                        mapWidget.Map.isFirstStep = false;
-                    }
-                    this.SetTextAndColor();
-                    this.Enabled = false;
-                    
-                    if (value == -1)
-                    {
-                        mapWidget.RevealCells();
-                        MessageBox.Show("Вы проиграли!");
-                    }
-                    else
-                        BackColor = Color.White;
-                    mapWidget.OpenCell(this);
+                    OnLeftButtonClick();
                     break;
                 }
                 case MouseButtons.Right:
                 {
-                    if (!isFlagged)
-                    {
-                        PutFlag();
-                        mapWidget.DecreaseMinesCount();
-                        isFlagged = true;
-                    }
-                    else
-                    {
-                        RemoveFlag();
-                        mapWidget.IncreaseMinesCount();
-                        isFlagged = false;
-                    }
+                    OnRightButtonClick();
                     break;
                 }
             }           
+        }
+
+
+        private void OnLeftButtonClick()
+        {
+            if (mapWidget.Map.isFirstStep)
+            {
+                int firstMoveX = ((Point)Tag).X;
+                int firstMoveY = ((Point)Tag).Y;
+
+                mapWidget.Map.SeedMines(firstMoveX, firstMoveY);
+                mapWidget.Map.CountMinesAroundCells();
+                mapWidget.UpdateCells();
+                mapWidget.Map.isFirstStep = false;
+            }
+            this.SetTextAndColor();
+            this.Enabled = false;
+
+            if (value == -1)
+            {
+                mapWidget.RevealCells();
+                MessageBox.Show("Вы проиграли!");
+            }
+            else
+                BackColor = Color.White;
+            mapWidget.OpenCell(this);
+        }
+
+        private void OnRightButtonClick()
+        {
+            if (!isFlagged)
+            {
+                PutFlag();
+                mapWidget.DecreaseMinesCount();
+                isFlagged = true;
+            }
+            else
+            {
+                RemoveFlag();
+                mapWidget.IncreaseMinesCount();
+                isFlagged = false;
+                SetTextAndColor();
+            }
         }
 
 

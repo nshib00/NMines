@@ -8,7 +8,7 @@ namespace NMines
     {
         // сделать отдельный класс контроллер поля
 
-        private const GameLevel gameLevel = GameLevel.HARD;
+        private const GameLevel gameLevel = GameLevel.EASY;
         public Game game = new Game(gameLevel);
 
         public MainForm()

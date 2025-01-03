@@ -46,8 +46,9 @@ namespace NMines
             map.InitField();
             mapWidget.UpdateCells();
             mapWidget.Map.isFirstStep = true;
+            GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
         }
-
+        
         public void Init(MainForm form)
         {
             SetupGame();
