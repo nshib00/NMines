@@ -65,7 +65,6 @@ namespace NMines
                 {
                     cells[i, j].SetToDefault();
                     cells[i, j].value = Map.Field[i, j].Value;
-                    cells[i, j].Text = cells[i, j].value.ToString();
                 }
             }
         }

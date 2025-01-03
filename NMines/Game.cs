@@ -6,21 +6,17 @@ using System.Windows.Forms;
 
 namespace NMines
 {
-    public class Game
+    public static class Game
     {
-        private GameLevel level;
-        private GameConfig config;
+        private static GameLevel level = GameLevel.EASY;
+        private static GameConfig config;
 
-        private GameUI gameUI;
-        private Map map;
-        private MapWidget mapWidget;
+        private static GameUI ui;
+        private static Map map;
+        private static MapWidget mapWidget;
 
-        public Game(GameLevel level)
-        {
-            this.level = level;
-        }
 
-        private Dictionary<GameLevel, GameConfig> GetGameConfigs()
+        private static Dictionary<GameLevel, GameConfig> GetGameConfigs()
         {
             GameConfig easyGameConfig = new GameConfig(rowsCount: 9, colsCount: 9, minesCount: 10, cellSize: 60, topFieldHeight: 50);
             GameConfig mediumGameConfig = new GameConfig(rowsCount: 16, colsCount: 16, minesCount: 40, cellSize: 45, topFieldHeight: 50);
@@ -34,22 +30,22 @@ namespace NMines
             };
         }
 
-        private void SetupGame()
+        private static void SetupGame()
         {
             var gameConfigs = GetGameConfigs();
             config = gameConfigs[level];
-            gameUI = new GameUI(config);
+            ui = new GameUI(config);
         }
 
-        private void restartButton_Click(object sender, EventArgs e)
+        private static void RestartButton_Click(object sender, EventArgs e)
         {
             map.InitField();
             mapWidget.UpdateCells();
             mapWidget.Map.isFirstStep = true;
             GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
         }
-        
-        public void Init(MainForm form)
+
+        public static void Init(MainForm form)
         {
             SetupGame();
 
@@ -67,19 +63,17 @@ namespace NMines
             mapWidget.ConfigureSize();
             mapWidget.InitCells();
 
-            gameUI.RestartButton.Click += restartButton_Click;
+            ui.RestartButton.Click += RestartButton_Click;
 
             form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 20);
 
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, config.TopFieldHeight));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-            mainLayout.Controls.Add(gameUI.TopPanel, 0, 0);
+            mainLayout.Controls.Add(ui.TopPanel, 0, 0);
             mainLayout.Controls.Add(mapWidget, 0, 1);
 
             form.Controls.Add(mainLayout);
-
-
         }
     }
 }

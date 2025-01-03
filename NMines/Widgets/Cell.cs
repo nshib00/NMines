@@ -21,8 +21,6 @@ namespace NMines.Widgets
             MinimumSize = new Size(size, size);
             Font = new Font("Segoe UI", 14);
             MouseUp += new MouseEventHandler(Cell_MouseUp);
-
-            Text = value.ToString();
         }
 
         private void Cell_MouseUp(object sender, MouseEventArgs e)

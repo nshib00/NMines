@@ -8,16 +8,13 @@ namespace NMines
     {
         // сделать отдельный класс контроллер поля
 
-        private const GameLevel gameLevel = GameLevel.EASY;
-        public Game game = new Game(gameLevel);
-
         public MainForm()
         {
             InitializeComponent();
             Font = new Font("Segoe UI", 20); 
             StartPosition = FormStartPosition.CenterScreen;
 
-            game.Init(this);
+            Game.Init(this);
         }
     }
 }
