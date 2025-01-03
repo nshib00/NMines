@@ -44,7 +44,8 @@ namespace NMines
             {
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    Cell cell = new Cell(this, size: cellSize, value: Map.Field[i, j]);               
+                    Cell cell = new Cell(this, size: cellSize, value: Map.Field[i, j].Value);
+                    cell.Tag = new Point(i, j);
 
                     cell.SizeChanged += (sender, e) => MakeSquare(cell);
 
@@ -63,7 +64,7 @@ namespace NMines
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
                     cells[i, j].SetToDefault();
-                    cells[i, j].value = Map.Field[i, j];
+                    cells[i, j].value = Map.Field[i, j].Value;
                     cells[i, j].Text = cells[i, j].value.ToString();
                 }
             }
@@ -95,6 +96,27 @@ namespace NMines
                 ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / Map.ColsCount));
         }
 
+        public void OpenCell(Cell cell)
+        {
+            int rowIndex = ((Point)cell.Tag).X;
+            int columnIndex = ((Point)cell.Tag).Y;
+            OpenCell(rowIndex, columnIndex);
+        }
+
+        public void OpenCell(int rowIndex, int columnIndex)
+        {
+            if (Map.Field[rowIndex, columnIndex].Value == -1)
+            {
+                cells[rowIndex, columnIndex].Text = "*";
+                cells[rowIndex, columnIndex].BackColor = Color.Red;
+            }
+            else if (Map.Field[rowIndex, columnIndex].Value != 0)
+                cells[rowIndex, columnIndex].Text = Convert.ToString(Map.Field[rowIndex, columnIndex].Value);
+
+            Map.Field[rowIndex, columnIndex].IsOpened = true;
+            cells[rowIndex, columnIndex].Enabled = false;
+        }
+
 
         public void RevealCells()
         {
@@ -102,14 +124,7 @@ namespace NMines
             {
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    if (Map.Field[i, j] == -1)
-                    {
-                        cells[i, j].Text = "*";
-                        cells[i, j].BackColor = Color.Red;
-                    }
-                    else if (Map.Field[i, j] != 0)
-                        cells[i, j].Text = Convert.ToString(Map.Field[i, j]);
-                    cells[i, j].Enabled = false;
+                    OpenCell(i, j);
                 }
             }
         }

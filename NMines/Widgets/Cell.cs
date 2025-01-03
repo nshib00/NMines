@@ -23,7 +23,6 @@ namespace NMines.Widgets
             MouseUp += new MouseEventHandler(Cell_MouseUp);
 
             Text = value.ToString();
-            //Tag = new Point(i, j),
             //Location = new Point(j * cellSize + xPad, i * cellSize + topFieldHeight + yPad);
             // button.Size = new Size(cellSize, cellSize);
         }
@@ -36,7 +35,10 @@ namespace NMines.Widgets
                 {
                     if (mapWidget.Map.isFirstStep)
                     {
-                        mapWidget.Map.SeedMines();
+                        int firstMoveX = ((Point)Tag).X;
+                        int firstMoveY = ((Point)Tag).Y;
+
+                        mapWidget.Map.SeedMines(firstMoveX, firstMoveY);
                         mapWidget.Map.CountMinesAroundCells();
                         mapWidget.UpdateCells();
                         mapWidget.Map.isFirstStep = false;
@@ -46,11 +48,12 @@ namespace NMines.Widgets
                     
                     if (value == -1)
                     {
-                        MessageBox.Show("Вы проиграли!");
                         mapWidget.RevealCells();
+                        MessageBox.Show("Вы проиграли!");
                     }
                     else
                         BackColor = Color.White;
+                    mapWidget.OpenCell(this);
                     break;
                 }
                 case MouseButtons.Right:
@@ -78,7 +81,7 @@ namespace NMines.Widgets
             if (value == -1)
             {
                 Text = "*";
-                BackColor = Color.Red;
+                BackColor = Color.Brown;
             }
             else if (value != 0)
             {

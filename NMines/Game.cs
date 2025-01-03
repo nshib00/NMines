@@ -112,7 +112,6 @@ namespace NMines
         {
             SetupGame();
 
-
             TableLayoutPanel mainLayout = new TableLayoutPanel()
             {
                 Dock = DockStyle.Fill,

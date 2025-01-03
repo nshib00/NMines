@@ -1,17 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace NMines
 {
+    public struct MapCell
+    {
+        public int Value;
+        public bool IsOpened;
+
+        public MapCell(int value = 0, bool isOpened = false)
+        {
+            Value = value;
+            IsOpened = isOpened;
+        }
+    }
+
     public class Map
     {
         public int RowsCount { get; }
         public int ColsCount { get; }
         private int MinesCount { get; }
-        public int[,] Field { get; }
+        public MapCell[,] Field { get; }
 
         public bool isFirstStep = true;
 
@@ -21,7 +30,7 @@ namespace NMines
             ColsCount = colsCount;
             MinesCount = minesCount;
 
-            Field = new int[RowsCount, ColsCount];
+            Field = new MapCell[RowsCount, ColsCount];
         }
 
         public void InitField()
@@ -30,27 +39,27 @@ namespace NMines
             {
                 for (int j = 0; j < ColsCount; j++)
                 {
-                    Field[i, j] = 0;
+                    Field[i, j] = new MapCell();
                 }
             }
         }
 
-        public void SeedMines()
+        public void SeedMines(int firstMoveX, int firstMoveY)
         {
             Random rand = new Random();
 
             for (int i = 0; i < MinesCount; i++)
             {
-                int randX = rand.Next(0, RowsCount - 1);
-                int randY = rand.Next(0, ColsCount - 1);
+                int randX = rand.Next(0, RowsCount);
+                int randY = rand.Next(0, ColsCount);
 
-                while (Field[randX, randY] == -1)
+                while (Field[randX, randY].Value == -1 || (Math.Abs(randX - firstMoveX) <= 1 && Math.Abs(randY - firstMoveY) <= 1))
                 {
-                    randX = rand.Next(0, RowsCount - 1);
-                    randY = rand.Next(0, ColsCount - 1);
+                    randX = rand.Next(0, RowsCount);
+                    randY = rand.Next(0, ColsCount);
                 }
 
-                Field[randX, randY] = -1;
+                Field[randX, randY].Value = -1;
             }
 
         }
@@ -62,15 +71,15 @@ namespace NMines
             {
                 for (int j = 0; j < ColsCount; j++)
                 {
-                    if (Field[i, j] == -1)
+                    if (Field[i, j].Value == -1)
                     {
                         for (int k = i - 1; k <= i + 1; k++)
                         {
                             for (int l = j - 1; l <= j + 1; l++)
                             {
-                                if (!IsInBorder(k, l) || Field[k, l] == -1)
+                                if (!IsInBorder(k, l) || Field[k, l].Value == -1)
                                     continue;
-                                Field[k, l]++;
+                                Field[k, l].Value++;
                             }
                         }
                     }
