@@ -8,7 +8,7 @@ namespace NMines
 {
     public static class Game
     {
-        private static GameLevel level = GameLevel.EASY;
+        private static GameLevel level = GameLevel.MEDIUM;
         private static GameConfig config;
 
         private static GameUI ui;
@@ -18,9 +18,9 @@ namespace NMines
 
         private static Dictionary<GameLevel, GameConfig> GetGameConfigs()
         {
-            GameConfig easyGameConfig = new GameConfig(rowsCount: 9, colsCount: 9, minesCount: 10, cellSize: 60, topFieldHeight: 50);
-            GameConfig mediumGameConfig = new GameConfig(rowsCount: 16, colsCount: 16, minesCount: 40, cellSize: 45, topFieldHeight: 50);
-            GameConfig hardGameConfig = new GameConfig(rowsCount: 16, colsCount: 30, minesCount: 99, cellSize: 45, topFieldHeight: 50);
+            GameConfig easyGameConfig = new GameConfig(rowsCount: 9, colsCount: 9, minesCount: 10, cellSize: 60);
+            GameConfig mediumGameConfig = new GameConfig(rowsCount: 16, colsCount: 16, minesCount: 40, cellSize: 45);
+            GameConfig hardGameConfig = new GameConfig(rowsCount: 16, colsCount: 30, minesCount: 99, cellSize: 45);
 
             return new Dictionary<GameLevel, GameConfig>()
             {
@@ -57,7 +57,7 @@ namespace NMines
             };
 
             map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
-            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad, config.TopFieldHeight);
+            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
             map.InitField();
 
             mapWidget.ConfigureSize();
@@ -67,7 +67,7 @@ namespace NMines
 
             form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 20);
 
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, config.TopFieldHeight));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, GameUI.TopFieldHeight));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
             mainLayout.Controls.Add(ui.TopPanel, 0, 0);

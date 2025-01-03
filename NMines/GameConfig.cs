@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NMines
+﻿namespace NMines
 {
     public class GameConfig
     {
@@ -15,9 +9,7 @@ namespace NMines
         public int XPad { get; }
         public int YPad { get; }
 
-        public int TopFieldHeight { get; }
-
-        public GameConfig(int rowsCount, int colsCount, int minesCount, int cellSize, int topFieldHeight, int xPad = 5, int yPad = 5)
+        public GameConfig(int rowsCount, int colsCount, int minesCount, int cellSize, int xPad = 5, int yPad = 5)
         {
             RowsCount = rowsCount;
             ColsCount = colsCount;
@@ -25,7 +17,6 @@ namespace NMines
             CellSize = cellSize;
             XPad = xPad;
             YPad = yPad;
-            TopFieldHeight = topFieldHeight;
         }
     }
 }

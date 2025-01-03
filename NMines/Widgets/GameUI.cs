@@ -11,9 +11,12 @@ namespace NMines.Widgets
         public static Label MinesCountLabel { get; private set; }
         public Button RestartButton { get; private set; }
 
+        public static int TopFieldHeight { get; private set; }
+
         public GameUI(GameConfig config)
         {
             InitTopPanel(config);
+            TopFieldHeight = 50;
         }
 
         private void InitTopPanel(GameConfig config)

@@ -13,19 +13,21 @@ namespace NMines
         private int cellSize;
         private int xPad;
         private int yPad;
+
         private int topFieldHeight;
 
         private Cell[,] cells;
 
 
-        public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad, int topFieldHeight)
+        public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad)
         {
             this.form = form;
             this.Map = map;
             this.cellSize = cellSize;
             this.xPad = xPad;
             this.yPad = yPad;
-            this.topFieldHeight = topFieldHeight;
+
+            this.topFieldHeight = 50;
 
             RowCount = Map.RowsCount;
             ColumnCount = Map.ColsCount;
