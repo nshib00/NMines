@@ -10,10 +10,12 @@ namespace NMines
 
         public MainForm()
         {
+            KeyPreview = true;
+
             InitializeComponent();
             Font = new Font("Segoe UI", 20); 
             StartPosition = FormStartPosition.CenterScreen;
-
+            
             Game.Init(this);
         }
     }

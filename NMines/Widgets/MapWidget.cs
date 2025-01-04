@@ -1,6 +1,7 @@
 ﻿using NMines.Widgets;
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace NMines
@@ -18,6 +19,8 @@ namespace NMines
 
         private Cell[,] cells;
 
+        public Image tileset;
+
 
         public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad)
         {
@@ -28,6 +31,10 @@ namespace NMines
             this.yPad = yPad;
 
             this.topFieldHeight = 50;
+
+            //string tilesetPath = Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Images/tiles.png");
+            //string tilesetPath = @"D:/projects/csharp/NMines/NMines/Images/tiles.png";
+            //tileset = new Bitmap(tilesetPath);
 
             RowCount = Map.RowsCount;
             ColumnCount = Map.ColsCount;
@@ -56,6 +63,7 @@ namespace NMines
 
                 }
             }
+            cells[Map.RowsCount / 2, Map.ColsCount / 2].FocusCell(); // в начале игры фокус на ячейке в середине поля
         }
 
 
@@ -150,6 +158,17 @@ namespace NMines
         }
 
 
+        public Cell GetCell(int rowIndex, int columnIndex)
+        {
+            return cells[rowIndex, columnIndex];
+        }
+
+
+        public void SelectCell(int rowIndex, int columnIndex)
+        {
+            cells[rowIndex, columnIndex].FocusCell();
+        }
+
         public void RevealCells()
         {
             for (int i = 0; i < Map.RowsCount; i++)
@@ -201,6 +220,15 @@ namespace NMines
                 }
             }
             return flaggedMines;
+        }
+
+        public Image GetCellImage(int x, int y)
+        {
+            Bitmap image = new Bitmap(cellSize, cellSize);
+            Graphics graphics = Graphics.FromImage(image);
+           // graphics.DrawImage();
+
+            return image;
         }
 
 

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 
@@ -38,6 +39,110 @@ namespace NMines.Widgets
                 }
             }           
         }
+
+        //private void Cell_Enter(object sender, EventArgs e)
+        //{
+        //    FlatAppearance.BorderSize = 5;
+        //}
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            int currentCellX = GetRowIndex();
+            int currentCellY = GetColumnIndex();
+
+            switch (keyData)
+            {
+                case Keys.Up:
+                    {
+                        int newRow = currentCellX;
+                        do
+                        {
+                            newRow = (newRow - 1 + mapWidget.Map.RowsCount) % mapWidget.Map.RowsCount;
+                        } while (!mapWidget.GetCell(newRow, currentCellY).Enabled);
+
+                        mapWidget.SelectCell(newRow, currentCellY);
+                        return true;
+                    }
+                case Keys.Down:
+                    {
+                        int newRow = currentCellX;
+                        do
+                        {
+                            newRow = (newRow + 1) % mapWidget.Map.RowsCount;
+                        } while (!mapWidget.GetCell(newRow, currentCellY).Enabled);
+
+                        mapWidget.SelectCell(newRow, currentCellY);
+                        return true;
+                    }
+                case Keys.Left:
+                    {
+                        int newCol = currentCellY;
+                        do
+                        {
+                            newCol = (newCol - 1 + mapWidget.Map.ColsCount) % mapWidget.Map.ColsCount;
+                        } while (!mapWidget.GetCell(currentCellX, newCol).Enabled);
+
+                        mapWidget.SelectCell(currentCellX, newCol);
+                        return true;
+                    }
+                case Keys.Right:
+                    {
+                        int newCol = currentCellY;
+                        do
+                        {
+                            newCol = (newCol + 1) % mapWidget.Map.ColsCount;
+                        } while (!mapWidget.GetCell(currentCellX, newCol).Enabled);
+
+                        mapWidget.SelectCell(currentCellX, newCol);
+                        return true;
+                    }
+                case Keys.W:
+                case Keys.Enter:
+                {
+                    OnLeftButtonClick();
+                    return true;
+                }
+                case Keys.E:
+                {
+                    OnRightButtonClick();
+                    return true;
+                }
+
+                default:
+                    return base.ProcessCmdKey(ref msg, keyData);
+            }
+        }
+
+        //protected override void OnMouseEnter(EventArgs e)
+        //{
+        //    base.OnMouseEnter(e);
+
+        //    if (!isFlagged)
+        //        this.BackColor = Color.LightBlue;
+        //}
+
+        //protected override void OnMouseLeave(EventArgs e)
+        //{
+        //    base.OnMouseLeave(e);
+        //    if (!isFlagged)
+        //        this.BackColor = SystemColors.Control;
+        //}
+
+
+        //public void SimulateMouseEnter()
+        //{
+        //    OnMouseEnter(EventArgs.Empty);
+
+        //    FlatAppearance.BorderSize = 2;
+
+        //    FlatAppearance.BorderColor = Color.Blue;
+        //}
+
+        public void FocusCell()
+        {
+            Focus();
+        }
+
 
         private void OnLeftButtonClick()
         {
@@ -94,7 +199,7 @@ namespace NMines.Widgets
         {
             if (value == -1)
             {
-                Text = "*";
+                //Text = "*";
                 BackColor = Color.Brown;
             }
             else if (value != 0)
