@@ -8,6 +8,7 @@ namespace NMines.Widgets
     public class GameUI
     {
         public static Panel TopPanel { get; private set; }
+        public static FlowLayoutPanel GameFieldPanel { get; private set; }        
         public static Label TimeLabel { get; private set; }
         public static Label MinesCountLabel { get; private set; }
         public static ToolStrip GameToolbar { get; private set; }
@@ -17,9 +18,16 @@ namespace NMines.Widgets
 
         public static int TopFieldHeight { get; private set; }
 
+
+        private GameConfig config;
+
+
         public GameUI(GameConfig config)
         {
+            this.config = config;
+
             InitTopPanel(config);
+            InitGameFieldPanel();
             TopFieldHeight = 45;
         }
 
@@ -42,13 +50,29 @@ namespace NMines.Widgets
         }
 
 
+        private int GetCurrentLevelIndex()
+        {
+            switch (config.MinesCount)
+            {
+                case 10:
+                    return 0;
+                case 40:
+                    return 1;
+                case 99:
+                    return 2;
+                default:
+                    return 0;
+            }
+        }
+
+
         private void InitDifficultyCombobox()
         {
             DifficultyCombobox = new ToolStripComboBox();
             DifficultyCombobox.DropDownStyle = ComboBoxStyle.DropDownList;
 
             DifficultyCombobox.Items.AddRange(new string[] { "Easy", "Medium", "Hard" } );
-            DifficultyCombobox.SelectedIndex = 0; // по умолчанию выбрана 1-я сложность в списке (Easy)
+            DifficultyCombobox.SelectedIndex = GetCurrentLevelIndex();
         }
 
 
@@ -113,6 +137,15 @@ namespace NMines.Widgets
             layout.Controls.Add(MinesCountLabel, 2, 0);
 
             TopPanel.Controls.Add(layout);
+        }
+
+        private void InitGameFieldPanel()
+        {
+            GameFieldPanel = new FlowLayoutPanel()
+            {
+                Dock = DockStyle.Fill,
+                Anchor = AnchorStyles.Top,
+            };
         }
     }
 }

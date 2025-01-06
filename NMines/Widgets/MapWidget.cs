@@ -1,26 +1,32 @@
 ﻿using NMines.Widgets;
-using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
+
 
 namespace NMines
 {
-    public class MapWidget : TableLayoutPanel
+    public class MapWidget : Control
     {
         private MainForm form;
-
         public Map Map { get; private set; }
+
         private int cellSize;
         private int xPad;
         private int yPad;
-
         private int topFieldHeight;
 
-        private Cell[,] cells;
+        private readonly Color DefaultColor = Color.LightGray;
+        private readonly Color HoveredColor = Color.LightBlue;
+        private readonly Color MineColor = Color.Red;
+        private readonly Color OpenedColor = Color.White;
+        private readonly Color FlaggedColor = Color.Brown;
 
-        public Image tileset;
+        private readonly Font CellsFont = new Font("Segoe UI", 16);
 
+        private int hoveredRow = -1;
+        private int hoveredCol = -1;
+
+        private bool isGameOver = false;
 
         public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad)
         {
@@ -29,165 +35,157 @@ namespace NMines
             this.cellSize = cellSize;
             this.xPad = xPad;
             this.yPad = yPad;
-
             this.topFieldHeight = 50;
 
-            //string tilesetPath = Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName, "Images/tiles.png");
-            //string tilesetPath = @"D:/projects/csharp/NMines/NMines/Images/tiles.png";
-            //tileset = new Bitmap(tilesetPath);
+            MouseMove += MapWidget_MouseMove;
+            MouseClick += MapWidget_MouseClick;
+            DoubleBuffered = true;
 
-            RowCount = Map.RowsCount;
-            ColumnCount = Map.ColsCount;
-
-            Anchor = AnchorStyles.Top;
-
-            cells = new Cell[Map.RowsCount, Map.ColsCount];
-
-            //DoubleBuffered = true;
-
-            AddStyles();
-            Render();
+            ConfigureSize();
         }
 
-
-
-
-
-        public void InitCells()
+        private void MapWidget_MouseClick(object sender, MouseEventArgs e)
         {
-            SuspendLayout();
+            int row = (e.Y - yPad) / cellSize;
+            int col = (e.X - xPad) / cellSize;
+
+            if (row >= 0 && row < Map.RowsCount && col >= 0 && col < Map.ColsCount)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    OnLeftButtonClick(row, col);
+                }
+                else if (e.Button == MouseButtons.Right)
+                {
+                    OnRightButtonClick(row, col);
+                }
+            }
+        }
+
+        private void OnLeftButtonClick(int row, int col)
+        {
+            if (Map.isFirstStep)
+            {
+                Map.SeedMines(row, col);
+                Map.CountMinesAroundCells();
+                Map.isFirstStep = false;
+            }
+
+            if (!isGameOver && !Map.Field[row, col].IsFlagged)
+            {
+                OpenCell(row, col);
+                Invalidate();
+
+                if (Map.Field[row, col].Value == -1 && !Map.Field[row, col].IsFlagged)
+                {
+                    isGameOver = true;
+                    RevealCells();
+                    MessageBox.Show("You lose.");
+                }
+            }
+        }
+
+        private void OnRightButtonClick(int row, int col)
+        {
+            if (!Map.Field[row, col].IsFlagged)
+            {
+                Map.Field[row, col].IsFlagged = true;
+                DecreaseMinesCount();
+            }
+            else
+            {
+                Map.Field[row, col].IsFlagged = false;
+                IncreaseMinesCount();
+            }
+
+            Invalidate();
+
+            if (Map.CountFlaggedMines() == Map.MinesCount)
+            {
+                RevealCells();
+                MessageBox.Show("You win!");
+            }
+        }
+
+        private void MapWidget_MouseMove(object sender, MouseEventArgs e)
+        {
+            int row = (e.Y - yPad) / cellSize;
+            int col = (e.X - xPad) / cellSize;
+
+            if (row != hoveredRow || col != hoveredCol)
+            {
+                hoveredRow = row;
+                hoveredCol = col;
+                Invalidate();
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            DrawMap(e.Graphics);
+        }
+
+        private void DrawMap(Graphics g)
+        {
             for (int i = 0; i < Map.RowsCount; i++)
             {
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    Cell cell = new Cell(this, size: cellSize, value: Map.Field[i, j].Value);
-                    cell.Tag = new Point(i, j);
+                    int x = xPad + j * cellSize;
+                    int y = yPad + i * cellSize;
 
-                    cell.SizeChanged += (sender, e) => MakeSquare(cell);
+                    Color cellColor = DefaultColor;
+                    if (i == hoveredRow && j == hoveredCol)
+                    {
+                        cellColor = HoveredColor;
+                    }
 
-                    this.Controls.Add(cell, column: j, row: i);
-                    cells[i, j] = cell;
+                    if (Map.Field[i, j].IsFlagged)
+                    {
+                        cellColor = FlaggedColor;
+                    }
 
+                    if (Map.Field[i, j].IsOpened)
+                    {
+                        cellColor = OpenedColor;
+                        if (Map.Field[i, j].Value == -1)
+                        {
+                            cellColor = MineColor;
+                        }
+                    }
+
+                    using (Brush brush = new SolidBrush(cellColor))
+                    {
+                        g.FillRectangle(brush, x, y, cellSize, cellSize);
+                    }
+
+                    using (Pen pen = new Pen(Color.Black))
+                    {
+                        g.DrawRectangle(pen, x, y, cellSize, cellSize);
+                    }
+
+                    if (Map.Field[i, j].IsOpened)
+                    {
+                        string text = "";
+                        if (Map.Field[i, j].Value == -1)
+                            text = "*";
+                        else if (Map.Field[i, j].Value > 0)
+                            text = Map.Field[i, j].Value.ToString();
+                        TextRenderer.DrawText(g, text, CellsFont, new Point(x + cellSize / 5, y + cellSize / 5), Color.Black);
+                    }
                 }
             }
-            cells[Map.RowsCount / 2, Map.ColsCount / 2].FocusCell(); // в начале игры фокус на ячейке в середине поля
-            ResumeLayout();
-        }
 
-
-        public void UpdateCells()
-        {
-            for (int i = 0; i < Map.RowsCount; i++)
+            if (isGameOver)
             {
-                for (int j = 0; j < Map.ColsCount; j++)
+                using (Brush overlayBrush = new SolidBrush(Color.FromArgb(100, Color.Black)))
                 {
-                    cells[i, j].SetToDefault();
-                    cells[i, j].value = Map.Field[i, j].Value;
+                    g.FillRectangle(overlayBrush, xPad, yPad, Map.ColsCount * cellSize, Map.RowsCount * cellSize);
                 }
             }
         }
 
-        public void ClearCells()
-        {
-            for (int i = 0; i < this.RowCount; i++)
-            {
-                for (int j = 0; j < this.ColumnCount; j++)
-                {
-                    cells[i, j] = default;
-                }
-            }
-            Controls.Clear();
-        }
-
-
-        private void MakeSquare(Control control)
-        {
-            int size = Math.Min(control.Width, control.Height);
-            control.Width = size;
-            control.Height = size;
-        }
-
-        public void ConfigureSize()
-        {
-            this.Width = Map.ColsCount * cellSize + 5;
-            this.Height = Map.RowsCount * cellSize + topFieldHeight + 20;
-
-            form.Width = this.Width + 30;
-            form.Height = this.Height + 30;
-        }
-
-        private void AddStyles()
-        {
-            for (int i = 0; i < RowCount; i++)
-                RowStyles.Add(new RowStyle(SizeType.Percent, 100f / Map.RowsCount));
-
-            for (int j = 0; j < ColumnCount; j++)
-                ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / Map.ColsCount));
-        }
-
-        public void OpenCell(int rowIndex, int columnIndex)
-        {
-            if (Map.Field[rowIndex, columnIndex].Value == -1)
-            {
-                cells[rowIndex, columnIndex].Text = "*";
-                cells[rowIndex, columnIndex].BackColor = Color.Red;
-            }
-            else if (Map.Field[rowIndex, columnIndex].Value != 0)
-                cells[rowIndex, columnIndex].Text = Convert.ToString(Map.Field[rowIndex, columnIndex].Value);
-
-            Map.Field[rowIndex, columnIndex].IsOpened = true;
-            cells[rowIndex, columnIndex].Enabled = false;
-        }
-
-        public void OpenCell(Cell cell)
-        {
-            int rowIndex = cell.GetRowIndex();
-            int columnIndex = cell.GetColumnIndex();
-            OpenCell(rowIndex, columnIndex);
-        }
-
-        public void OpenCellWithEmptyNeighbors(Cell cell)
-        {
-            if (cell.value > 0)
-                return;
-
-            cell.SetTextAndColor();
-            cell.Enabled = false;
-
-            int row = cell.GetRowIndex();
-            int col = cell.GetColumnIndex();
-
-            for (int i = row - 1; i <= row + 1; i++)
-            {
-                for (int j = col - 1; j <= col + 1; j++)
-                {
-                    if (!Map.IsInBorder(i, j))
-                        continue;
-
-                    Cell neighbor = cells[i, j];
-
-                    if (neighbor.isFlagged || !neighbor.Enabled)
-                        continue;
-
-                    if (neighbor.value == 0)
-                        OpenCellWithEmptyNeighbors(neighbor);
-                    OpenCell(neighbor);
-                }
-            }
-
-        }
-
-
-        public Cell GetCell(int rowIndex, int columnIndex)
-        {
-            return cells[rowIndex, columnIndex];
-        }
-
-
-        public void SelectCell(int rowIndex, int columnIndex)
-        {
-            cells[rowIndex, columnIndex].FocusCell();
-        }
 
         public void RevealCells()
         {
@@ -201,14 +199,46 @@ namespace NMines
         }
 
 
-        private void Render()
+        private void OpenCell(int row, int col)
         {
-            form.Controls.Add(this);
+            if (Map.Field[row, col].IsOpened) return;
+            Map.Field[row, col].IsOpened = true;
+
+            if (Map.Field[row, col].Value == 0)
+            {
+                OpenEmptyNeighbors(row, col);
+            }
         }
 
-        public void Clear()
+        private void OpenEmptyNeighbors(int row, int col)
         {
-            this.Controls.Clear();   
+            for (int i = row - 1; i <= row + 1; i++)
+            {
+                for (int j = col - 1; j <= col + 1; j++)
+                {
+                    if (i >= 0 && i < Map.RowsCount && j >= 0 && j < Map.ColsCount && !Map.Field[i, j].IsOpened && Map.Field[i, j].Value != -1)
+                    {
+                        OpenCell(i, j);
+                    }
+                }
+            }
+        }
+
+        public void ConfigureSize()
+        {
+            Width = Map.ColsCount * cellSize + xPad * 2 + 10;
+            Height = Map.RowsCount * cellSize + yPad * 2 + topFieldHeight + 25;
+
+            form.Width = Width + 20;
+            form.Height = Height + 40;
+        }
+
+        public void RestartWidget()
+        {
+            isGameOver = false;
+            hoveredRow = -1;
+            hoveredCol = -1;
+            Invalidate();
         }
 
         public void IncreaseMinesCount()
@@ -225,32 +255,5 @@ namespace NMines
         {
             return int.Parse(GameUI.MinesCountLabel.Text);
         }
-
-
-        public int CountFlaggedMines()
-        {
-            int flaggedMines = 0;
-
-            for (int i = 0; i < Map.RowsCount; i++)
-            {
-                for (int j = 0; j < Map.ColsCount; j++)
-                {
-                    if (cells[i, j].isFlagged && cells[i, j].value == -1)
-                        flaggedMines++;
-                }
-            }
-            return flaggedMines;
-        }
-
-        public Image GetCellImage(int x, int y)
-        {
-            Bitmap image = new Bitmap(cellSize, cellSize);
-            Graphics graphics = Graphics.FromImage(image);
-           // graphics.DrawImage();
-
-            return image;
-        }
-
-
     }
 }

@@ -49,9 +49,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="GameConfig.cs" />
     <Compile Include="GameLevel.cs" />
-    <Compile Include="Widgets\Cell.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Widgets\Cell.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

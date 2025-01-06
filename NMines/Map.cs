@@ -7,11 +7,13 @@ namespace NMines
     {
         public int Value;
         public bool IsOpened;
+        public bool IsFlagged;
 
-        public MapCell(int value = 0, bool isOpened = false)
+        public MapCell(int value = 0, bool isOpened = false, bool isFlagged = false)
         {
             Value = value;
             IsOpened = isOpened;
+            IsFlagged = isFlagged;
         }
     }
 
@@ -20,7 +22,7 @@ namespace NMines
         public int RowsCount { get; }
         public int ColsCount { get; }
         public int MinesCount { get; }
-        public MapCell[,] Field { get; }
+        public MapCell[,] Field { get; private set; }
 
         public bool isFirstStep = true;
 
@@ -29,12 +31,12 @@ namespace NMines
             RowsCount = rowsCount;
             ColsCount = colsCount;
             MinesCount = minesCount;
-
-            Field = new MapCell[RowsCount, ColsCount];
         }
 
         public void InitField()
         {
+            Field = new MapCell[RowsCount, ColsCount];
+
             for (int i = 0; i < RowsCount; i++)
             {
                 for (int j = 0; j < ColsCount; j++)
@@ -92,6 +94,22 @@ namespace NMines
             if (i < 0 || j < 0 || i > RowsCount - 1 || j > ColsCount - 1)
                 return false;
             return true;
+        }
+
+        public int CountFlaggedMines()
+        {
+            int flaggedMines = 0;
+
+            for (int i = 0; i < RowsCount; i++)
+            {
+                for (int j = 0; j < ColsCount; j++)
+                {
+                    if (Field[i, j].IsFlagged && Field[i, j].Value == -1)
+                        flaggedMines++;
+                }
+            }
+
+            return flaggedMines;
         }
 
     }

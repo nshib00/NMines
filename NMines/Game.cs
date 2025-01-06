@@ -9,7 +9,7 @@ namespace NMines
 {
     public static class Game
     {
-        private static GameLevel level = GameLevel.EASY;
+        private static GameLevel level = GameLevel.HARD;
         private static GameConfig config;
 
         private static GameUI ui;
@@ -22,8 +22,8 @@ namespace NMines
         private static Dictionary<GameLevel, GameConfig> GetGameConfigs()
         {
             GameConfig easyGameConfig = new GameConfig(rowsCount: 9, colsCount: 9, minesCount: 10, cellSize: 60);
-            GameConfig mediumGameConfig = new GameConfig(rowsCount: 16, colsCount: 16, minesCount: 40, cellSize: 45);
-            GameConfig hardGameConfig = new GameConfig(rowsCount: 16, colsCount: 30, minesCount: 99, cellSize: 45);
+            GameConfig mediumGameConfig = new GameConfig(rowsCount: 16, colsCount: 16, minesCount: 40, cellSize: 43);
+            GameConfig hardGameConfig = new GameConfig(rowsCount: 16, colsCount: 30, minesCount: 99, cellSize: 43);
 
             return new Dictionary<GameLevel, GameConfig>()
             {
@@ -76,19 +76,26 @@ namespace NMines
 
                 MessageBox.Show(level.ToString());
 
-                mapWidget.ClearCells();
-
                 map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
                 map.InitField();
 
+                if (mapWidget != null)
+                {
+                    GameUI.GameFieldPanel.Controls.Remove(mapWidget);
+                    mapWidget.Dispose();
+                }
+
                 mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
+                GameUI.GameFieldPanel.Controls.Add(mapWidget);
                 mapWidget.ConfigureSize();
-                mapWidget.InitCells();
 
                 GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
 
                 ui.RestartButton.Click += RestartButton_Click;
 
+                GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
+                form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
+                form.Size = form.MinimumSize;
                 form.MoveToCenter();
             }
         }
@@ -96,7 +103,7 @@ namespace NMines
         private static void RestartButton_Click(object sender, EventArgs e)
         {
             map.InitField();
-            mapWidget.UpdateCells();
+            mapWidget.RestartWidget();
             mapWidget.Map.isFirstStep = true;
             GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
         }
@@ -111,13 +118,15 @@ namespace NMines
                 RowCount = 3,
             };
 
+            GameUI.GameFieldPanel.Controls.Add(mapWidget);
+
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, GameUI.TopFieldHeight));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
             mainLayout.Controls.Add(GameUI.GameToolbar, 0, 0);
             mainLayout.Controls.Add(GameUI.TopPanel, 0, 1);
-            mainLayout.Controls.Add(mapWidget, 0, 2);
+            mainLayout.Controls.Add(GameUI.GameFieldPanel, 0, 2);
 
             form.Controls.Add(mainLayout);
         }
@@ -132,11 +141,12 @@ namespace NMines
             map.InitField();
 
             mapWidget.ConfigureSize();
-            mapWidget.InitCells();
 
             ui.RestartButton.Click += RestartButton_Click;
 
             form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 30);
+
+            GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
 
             CreateMainLayout(form);
         }
