@@ -18,5 +18,16 @@ namespace NMines
             
             Game.Init(this);
         }
+
+        public void MoveToCenter()
+        {
+            int screenWidth = Screen.PrimaryScreen.WorkingArea.Width;
+            int screenHeight = Screen.PrimaryScreen.WorkingArea.Height;
+
+            int x = (screenWidth - Width) / 2;
+            int y = (screenHeight - Height) / 2;
+            
+            Location = new Point(x, y);
+        }
     }
 }

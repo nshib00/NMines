@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 
@@ -6,18 +7,50 @@ namespace NMines.Widgets
 {
     public class GameUI
     {
-        public Panel TopPanel { get; private set; }
+        public static Panel TopPanel { get; private set; }
         public static Label TimeLabel { get; private set; }
         public static Label MinesCountLabel { get; private set; }
+        public static ToolStrip GameToolbar { get; private set; }
+
         public Button RestartButton { get; private set; }
-       
+        public ToolStripComboBox DifficultyCombobox { get; private set; }
+
         public static int TopFieldHeight { get; private set; }
 
         public GameUI(GameConfig config)
         {
             InitTopPanel(config);
-            TopFieldHeight = 50;
+            TopFieldHeight = 45;
         }
+
+        private void InitGameToolbar()
+        {
+            GameToolbar = new ToolStrip()
+            {
+                Dock = DockStyle.Top,
+                GripStyle = ToolStripGripStyle.Hidden
+            };
+
+            InitDifficultyCombobox();
+
+            GameToolbar.Items.Add(new ToolStripLabel("Difficulty"));
+            GameToolbar.Items.Add(DifficultyCombobox);
+            GameToolbar.Items.Add(new ToolStripSeparator());
+            GameToolbar.Items.Add(new ToolStripLabel("Save game"));
+            GameToolbar.Items.Add(new ToolStripSeparator());
+            GameToolbar.Items.Add(new ToolStripLabel("Load game"));
+        }
+
+
+        private void InitDifficultyCombobox()
+        {
+            DifficultyCombobox = new ToolStripComboBox();
+            DifficultyCombobox.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            DifficultyCombobox.Items.AddRange(new string[] { "Easy", "Medium", "Hard" } );
+            DifficultyCombobox.SelectedIndex = 0; // по умолчанию выбрана 1-я сложность в списке (Easy)
+        }
+
 
         private void InitTopPanel(GameConfig config)
         {
@@ -47,7 +80,7 @@ namespace NMines.Widgets
             TimeLabel = new Label()
             {
                 Text = "00:00",
-                MinimumSize = new Size(40, 30),
+                MinimumSize = new Size(40, 25),
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 18)
@@ -56,19 +89,22 @@ namespace NMines.Widgets
             RestartButton = new Button()
             {
                 Text = "🙂",
-                MinimumSize = new Size(40, 40),
+                MinimumSize = new Size(40, 35),
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 18),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 15),
             };
 
             MinesCountLabel = new Label()
             {
                 Text = config.MinesCount.ToString(),
-                MinimumSize = new Size(40, 30),
+                MinimumSize = new Size(40, 25),
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Font = new Font("Segoe UI", 18)
             };
+
+            InitGameToolbar();
 
 
             //layout.Controls.Add(changeLevelBox, 0, 0);

@@ -129,14 +129,14 @@ namespace NMines.Widgets
         //}
 
 
-        //public void SimulateMouseEnter()
-        //{
-        //    OnMouseEnter(EventArgs.Empty);
+        public void SimulateMouseEnter()
+        {
+            OnMouseEnter(EventArgs.Empty);
 
-        //    FlatAppearance.BorderSize = 2;
+            FlatAppearance.BorderSize = 2;
 
-        //    FlatAppearance.BorderColor = Color.Blue;
-        //}
+            FlatAppearance.BorderColor = Color.Blue;
+        }
 
         public void FocusCell()
         {

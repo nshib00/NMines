@@ -43,12 +43,19 @@ namespace NMines
 
             cells = new Cell[Map.RowsCount, Map.ColsCount];
 
+            //DoubleBuffered = true;
+
             AddStyles();
             Render();
         }
 
+
+
+
+
         public void InitCells()
         {
+            SuspendLayout();
             for (int i = 0; i < Map.RowsCount; i++)
             {
                 for (int j = 0; j < Map.ColsCount; j++)
@@ -64,6 +71,7 @@ namespace NMines
                 }
             }
             cells[Map.RowsCount / 2, Map.ColsCount / 2].FocusCell(); // в начале игры фокус на ячейке в середине поля
+            ResumeLayout();
         }
 
 
@@ -77,6 +85,18 @@ namespace NMines
                     cells[i, j].value = Map.Field[i, j].Value;
                 }
             }
+        }
+
+        public void ClearCells()
+        {
+            for (int i = 0; i < this.RowCount; i++)
+            {
+                for (int j = 0; j < this.ColumnCount; j++)
+                {
+                    cells[i, j] = default;
+                }
+            }
+            Controls.Clear();
         }
 
 
