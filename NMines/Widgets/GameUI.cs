@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Timers;
 using System.Windows.Forms;
 
 
@@ -9,14 +10,14 @@ namespace NMines.Widgets
     {
         public static Panel TopPanel { get; private set; }
         public static FlowLayoutPanel GameFieldPanel { get; private set; }        
-        public static Label TimeLabel { get; private set; }
+        public static TimeLabel TimeLabel { get; private set; }
         public static Label MinesCountLabel { get; private set; }
         public static ToolStrip GameToolbar { get; private set; }
 
         public Button RestartButton { get; private set; }
         public ToolStripComboBox DifficultyCombobox { get; private set; }
 
-        public static int TopFieldHeight { get; private set; }
+        public static int TopFieldHeight { get; private set; } = 45;
 
 
         private GameConfig config;
@@ -28,7 +29,6 @@ namespace NMines.Widgets
 
             InitTopPanel(config);
             InitGameFieldPanel();
-            TopFieldHeight = 45;
         }
 
         private void InitGameToolbar()
@@ -48,7 +48,6 @@ namespace NMines.Widgets
             GameToolbar.Items.Add(new ToolStripSeparator());
             GameToolbar.Items.Add(new ToolStripLabel("Load game"));
         }
-
 
         private int GetCurrentLevelIndex()
         {
@@ -91,24 +90,12 @@ namespace NMines.Widgets
                 RowCount = 1,
             };
 
-            // layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 10));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45));
 
-            //ComboBox changeLevelBox = new ComboBox()
-            //{
-            //    DataSource = GetGameConfigs().Values.ToList(),
-            //};
 
-            TimeLabel = new Label()
-            {
-                Text = "00:00",
-                MinimumSize = new Size(40, 25),
-                Dock = DockStyle.Fill,
-                TextAlign = ContentAlignment.MiddleCenter,
-                Font = new Font("Segoe UI", 18)
-            };
+            TimeLabel = new TimeLabel();
 
             RestartButton = new Button()
             {
@@ -130,8 +117,6 @@ namespace NMines.Widgets
 
             InitGameToolbar();
 
-
-            //layout.Controls.Add(changeLevelBox, 0, 0);
             layout.Controls.Add(TimeLabel, 0, 0);
             layout.Controls.Add(RestartButton, 1, 0);
             layout.Controls.Add(MinesCountLabel, 2, 0);

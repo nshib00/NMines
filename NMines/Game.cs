@@ -74,8 +74,6 @@ namespace NMines
                 var gameConfigs = GetGameConfigs();
                 config = gameConfigs[level];
 
-                MessageBox.Show(level.ToString());
-
                 map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
                 map.InitField();
 
@@ -97,15 +95,19 @@ namespace NMines
                 form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
                 form.Size = form.MinimumSize;
                 form.MoveToCenter();
+
+                GameUI.TimeLabel.RestartTimer();
             }
         }
+
 
         private static void RestartButton_Click(object sender, EventArgs e)
         {
             map.InitField();
-            mapWidget.RestartWidget();
+            mapWidget.Restart();
             mapWidget.Map.isFirstStep = true;
             GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
+            GameUI.TimeLabel.RestartTimer();
         }
 
 
@@ -149,6 +151,8 @@ namespace NMines
             GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
 
             CreateMainLayout(form);
+
+            GameUI.TimeLabel.StartTimer();
         }
 
 

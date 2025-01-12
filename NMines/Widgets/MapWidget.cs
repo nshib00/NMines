@@ -1,11 +1,12 @@
 ﻿using NMines.Widgets;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 
 namespace NMines
 {
-    public class MapWidget : Control
+    public class MapWidget : Panel
     {
         private MainForm form;
         public Map Map { get; private set; }
@@ -15,16 +16,11 @@ namespace NMines
         private int yPad;
         private int topFieldHeight;
 
-        private readonly Color DefaultColor = Color.LightGray;
-        private readonly Color HoveredColor = Color.LightBlue;
-        private readonly Color MineColor = Color.Red;
-        private readonly Color OpenedColor = Color.White;
-        private readonly Color FlaggedColor = Color.Brown;
-
-        private readonly Font CellsFont = new Font("Segoe UI", 16);
-
         private int hoveredRow = -1;
         private int hoveredCol = -1;
+
+        private int keyboardHoveredRow = -1;
+        private int keyboardHoveredCol = -1;
 
         private bool isGameOver = false;
 
@@ -35,14 +31,95 @@ namespace NMines
             this.cellSize = cellSize;
             this.xPad = xPad;
             this.yPad = yPad;
-            this.topFieldHeight = 50;
+
+            topFieldHeight = 50;
+            keyboardHoveredRow = Map.RowsCount / 2;
+            keyboardHoveredCol = Map.ColsCount / 2;
 
             MouseMove += MapWidget_MouseMove;
             MouseClick += MapWidget_MouseClick;
+
             DoubleBuffered = true;
 
             ConfigureSize();
         }
+
+        protected override void OnClick(EventArgs e)
+        {
+            base.OnClick(e);
+            Focus();
+        }
+
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            int currentCellX = keyboardHoveredRow;
+            int currentCellY = keyboardHoveredCol;
+
+            switch (keyData)
+            {
+                case Keys.Up:
+                    MoveSelection(-1, 0);
+                    return true;
+                case Keys.Down:
+                    MoveSelection(1, 0);
+                    return true;
+                case Keys.Left:
+                    MoveSelection(0, -1);
+                    return true;
+                case Keys.Right:
+                    MoveSelection(0, 1);
+                    return true;
+                case Keys.W:
+                    PerformLeftClick();
+                    return true;
+                case Keys.E:
+                    PerformRightClick();
+                    return true;
+                default:
+                    return base.ProcessCmdKey(ref msg, keyData);
+            }
+        }
+
+        private void PerformLeftClick()
+        {
+            if (isGameOver) return;
+
+            OnLeftButtonClick(keyboardHoveredRow, keyboardHoveredCol);
+        }
+
+        private void PerformRightClick()
+        {
+            if (isGameOver) return;
+
+            OnRightButtonClick(keyboardHoveredRow, keyboardHoveredCol);
+        }
+
+        private void MoveSelection(int dRow, int dCol)
+        {
+            if (isGameOver) return;
+
+            int newRow = hoveredRow;
+            int newCol = hoveredCol;
+
+            do
+            {
+                newRow = (newRow + dRow + Map.RowsCount) % Map.RowsCount;
+                newCol = (newCol + dCol + Map.ColsCount) % Map.ColsCount;
+            }
+            while (Map.Field[newRow, newCol].IsOpened && !(newRow == hoveredRow && newCol == hoveredCol));
+
+            keyboardHoveredRow = newRow;
+            keyboardHoveredCol = newCol;
+
+            // синхронизация координат мыши с координатами клавиатуры
+            hoveredRow = newRow;
+            hoveredCol = newCol;
+
+            Invalidate();
+        }
+
+
 
         private void MapWidget_MouseClick(object sender, MouseEventArgs e)
         {
@@ -76,9 +153,10 @@ namespace NMines
                 OpenCell(row, col);
                 Invalidate();
 
-                if (Map.Field[row, col].Value == -1 && !Map.Field[row, col].IsFlagged)
+                if (Map.Field[row, col].Value == -1)
                 {
                     isGameOver = true;
+                    GameUI.TimeLabel.StopTimer();
                     RevealCells();
                     MessageBox.Show("You lose.");
                 }
@@ -87,23 +165,29 @@ namespace NMines
 
         private void OnRightButtonClick(int row, int col)
         {
-            if (!Map.Field[row, col].IsFlagged)
+            if (!Map.Field[row, col].IsOpened)
             {
-                Map.Field[row, col].IsFlagged = true;
-                DecreaseMinesCount();
-            }
-            else
-            {
-                Map.Field[row, col].IsFlagged = false;
-                IncreaseMinesCount();
-            }
+                if (!Map.Field[row, col].IsFlagged)
+                {
+                    Map.Field[row, col].IsFlagged = true;
+                    DecreaseMinesCount();
+                }
+                else
+                {
+                    Map.Field[row, col].IsFlagged = false;
+                    IncreaseMinesCount();
+                }
 
-            Invalidate();
+                Invalidate();
 
-            if (Map.CountFlaggedMines() == Map.MinesCount)
-            {
-                RevealCells();
-                MessageBox.Show("You win!");
+                if (Map.CountFlaggedMines() == Map.MinesCount)
+                {
+                    GameUI.TimeLabel.StopTimer();
+                    RevealCells();
+
+                    string gameTime = GameUI.TimeLabel.GetGameTime();
+                    MessageBox.Show($"You win!\nGame time: {gameTime} seconds."); 
+                }
             }
         }
 
@@ -116,6 +200,11 @@ namespace NMines
             {
                 hoveredRow = row;
                 hoveredCol = col;
+
+                // синхронизация координат клавиатуры с координатами мыши
+                keyboardHoveredRow = row;
+                keyboardHoveredCol = col;
+
                 Invalidate();
             }
         }
@@ -126,7 +215,7 @@ namespace NMines
             DrawMap(e.Graphics);
         }
 
-        private void DrawMap(Graphics g)
+        private void DrawMap(Graphics graphics)
         {
             for (int i = 0; i < Map.RowsCount; i++)
             {
@@ -135,44 +224,18 @@ namespace NMines
                     int x = xPad + j * cellSize;
                     int y = yPad + i * cellSize;
 
-                    Color cellColor = DefaultColor;
-                    if (i == hoveredRow && j == hoveredCol)
-                    {
-                        cellColor = HoveredColor;
-                    }
+                    bool isMouseHovered = (i == hoveredRow && j == hoveredCol);
+                    bool isKeyboardHovered = (i == keyboardHoveredRow && j == keyboardHoveredCol);
 
-                    if (Map.Field[i, j].IsFlagged)
-                    {
-                        cellColor = FlaggedColor;
-                    }
+                    Cell cell = new Cell(this, mapCell: Map.Field[i, j], size: cellSize, isHovered: isMouseHovered);
+                    cell.Draw(graphics, x, y);
 
-                    if (Map.Field[i, j].IsOpened)
+                    if (isKeyboardHovered)
                     {
-                        cellColor = OpenedColor;
-                        if (Map.Field[i, j].Value == -1)
+                        using (Pen pen = new Pen(Color.Green, 2))
                         {
-                            cellColor = MineColor;
+                            graphics.DrawRectangle(pen, x, y, cellSize, cellSize);
                         }
-                    }
-
-                    using (Brush brush = new SolidBrush(cellColor))
-                    {
-                        g.FillRectangle(brush, x, y, cellSize, cellSize);
-                    }
-
-                    using (Pen pen = new Pen(Color.Black))
-                    {
-                        g.DrawRectangle(pen, x, y, cellSize, cellSize);
-                    }
-
-                    if (Map.Field[i, j].IsOpened)
-                    {
-                        string text = "";
-                        if (Map.Field[i, j].Value == -1)
-                            text = "*";
-                        else if (Map.Field[i, j].Value > 0)
-                            text = Map.Field[i, j].Value.ToString();
-                        TextRenderer.DrawText(g, text, CellsFont, new Point(x + cellSize / 5, y + cellSize / 5), Color.Black);
                     }
                 }
             }
@@ -181,7 +244,7 @@ namespace NMines
             {
                 using (Brush overlayBrush = new SolidBrush(Color.FromArgb(100, Color.Black)))
                 {
-                    g.FillRectangle(overlayBrush, xPad, yPad, Map.ColsCount * cellSize, Map.RowsCount * cellSize);
+                    graphics.FillRectangle(overlayBrush, xPad, yPad, Map.ColsCount * cellSize, Map.RowsCount * cellSize);
                 }
             }
         }
@@ -233,7 +296,7 @@ namespace NMines
             form.Height = Height + 40;
         }
 
-        public void RestartWidget()
+        public void Restart()
         {
             isGameOver = false;
             hoveredRow = -1;
