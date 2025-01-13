@@ -9,6 +9,8 @@ namespace NMines
     public class MapWidget : Panel
     {
         private MainForm form;
+        private Cell[,] cells;
+
         public Map Map { get; private set; }
 
         private int cellSize;
@@ -42,44 +44,77 @@ namespace NMines
             DoubleBuffered = true;
 
             ConfigureSize();
+
+            InitCells();
         }
 
-        protected override void OnClick(EventArgs e)
+        private void InitCells()
         {
-            base.OnClick(e);
-            Focus();
-        }
+            cells = new Cell[Map.RowsCount, Map.ColsCount];
 
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            int currentCellX = keyboardHoveredRow;
-            int currentCellY = keyboardHoveredCol;
-
-            switch (keyData)
+            for (int i = 0; i < Map.RowsCount; i++)
             {
-                case Keys.Up:
-                    MoveSelection(-1, 0);
-                    return true;
-                case Keys.Down:
-                    MoveSelection(1, 0);
-                    return true;
-                case Keys.Left:
-                    MoveSelection(0, -1);
-                    return true;
-                case Keys.Right:
-                    MoveSelection(0, 1);
-                    return true;
-                case Keys.W:
-                    PerformLeftClick();
-                    return true;
-                case Keys.E:
-                    PerformRightClick();
-                    return true;
-                default:
-                    return base.ProcessCmdKey(ref msg, keyData);
+                for (int j = 0; j < Map.ColsCount; j++)
+                {
+                    int x = xPad + j * cellSize;
+                    int y = yPad + i * cellSize;
+
+                    cells[i, j] = new Cell(this, mapCell: Map.Field[i, j], size: cellSize, isHovered: false);
+                    //this.Controls.Add(cell);
+                }
             }
         }
+
+
+        public void UpdateCells()
+        {
+            for (int i = 0; i < Map.RowsCount; i++)
+            {
+                for (int j = 0; j < Map.ColsCount; j++)
+                {
+                    cells[i, j].UpdateState(Map.Field[i, j]);
+                }
+            }
+            Invalidate();
+        }
+
+
+        //protected override void OnClick(EventArgs e)
+        //{
+        //    base.OnClick(e);
+        //    Focus();
+        //}
+
+
+        //protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        //{
+        //    int currentCellX = keyboardHoveredRow;
+        //    int currentCellY = keyboardHoveredCol;
+
+        //    switch (keyData)
+        //    {
+        //        case Keys.Up:
+        //            MoveSelection(-1, 0);
+        //            return true;
+        //        case Keys.Down:
+        //            MoveSelection(1, 0);
+        //            return true;
+        //        case Keys.Left:
+        //            MoveSelection(0, -1);
+        //            return true;
+        //        case Keys.Right:
+        //            MoveSelection(0, 1);
+        //            return true;
+        //        case Keys.W:
+        //            PerformLeftClick();
+        //            return true;
+        //        case Keys.E:
+        //            PerformRightClick();
+        //            return true;
+        //        default:
+        //            return base.ProcessCmdKey(ref msg, keyData);
+        //    }
+        //}
 
         private void PerformLeftClick()
         {
@@ -152,7 +187,7 @@ namespace NMines
             if (!isGameOver && !Map.Field[row, col].IsFlagged)
             {
                 OpenCell(row, col);
-                Invalidate();
+                UpdateCells();
 
                 if (Map.Field[row, col].Value == -1)
                 {
@@ -179,7 +214,7 @@ namespace NMines
                     IncreaseMinesCount();
                 }
 
-                Invalidate();
+                UpdateCells();
 
                 if (Map.CountFlaggedMines() == Map.MinesCount)
                 {
@@ -228,8 +263,8 @@ namespace NMines
                     bool isMouseHovered = (i == hoveredRow && j == hoveredCol);
                     bool isKeyboardHovered = (i == keyboardHoveredRow && j == keyboardHoveredCol);
 
-                    Cell cell = new Cell(this, mapCell: Map.Field[i, j], size: cellSize, isHovered: isMouseHovered);
-                    cell.Draw(graphics, x, y);
+                    cells[i, j].IsHovered = isKeyboardHovered;
+                    cells[i, j].Draw(graphics, x, y);
 
                     if (isKeyboardHovered)
                     {
@@ -260,6 +295,7 @@ namespace NMines
                     OpenCell(i, j);
                 }
             }
+            UpdateCells();
         }
 
 
@@ -302,7 +338,7 @@ namespace NMines
             isGameOver = false;
             hoveredRow = -1;
             hoveredCol = -1;
-            Invalidate();
+            UpdateCells();
         }
 
         public void IncreaseMinesCount()

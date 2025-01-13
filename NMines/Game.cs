@@ -139,8 +139,8 @@ namespace NMines
             SetupGame();
 
             map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
-            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
             map.InitField();
+            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
 
             mapWidget.ConfigureSize();
 
