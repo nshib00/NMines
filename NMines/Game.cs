@@ -96,7 +96,7 @@ namespace NMines
                 form.Size = form.MinimumSize;
                 form.MoveToCenter();
 
-                GameUI.TimeLabel.RestartTimer();
+                GameUI.TimeLabel.ResetTimer();
             }
         }
 
@@ -150,9 +150,7 @@ namespace NMines
 
             GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
 
-            CreateMainLayout(form);
-
-            GameUI.TimeLabel.StartTimer();
+            CreateMainLayout(form);           
         }
 
 

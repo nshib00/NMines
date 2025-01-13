@@ -146,6 +146,7 @@ namespace NMines
                 Map.SeedMines(row, col);
                 Map.CountMinesAroundCells();
                 Map.isFirstStep = false;
+                GameUI.TimeLabel.StartTimer();
             }
 
             if (!isGameOver && !Map.Field[row, col].IsFlagged)
