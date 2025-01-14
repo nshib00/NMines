@@ -21,8 +21,10 @@ namespace NMines
         private int hoveredRow = -1;
         private int hoveredCol = -1;
 
-        private int keyboardHoveredRow = -1;
-        private int keyboardHoveredCol = -1;
+        private int keyboardHoveredRow;
+        private int keyboardHoveredCol;
+
+        private bool keyboardFlagSet = false;
 
         private bool isGameOver = false;
 
@@ -40,12 +42,47 @@ namespace NMines
 
             MouseMove += MapWidget_MouseMove;
             MouseClick += MapWidget_MouseClick;
+            KeyDown += MapWidget_KeyDown;
 
             DoubleBuffered = true;
 
             ConfigureSize();
 
             InitCells();
+        }
+
+        protected override void OnClick(EventArgs e)
+        {
+            base.OnClick(e);
+            Focus();
+        }
+
+        private void MapWidget_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (isGameOver) return;
+
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    MoveSelection(-1, 0);
+                    break;
+                case Keys.S:
+                    MoveSelection(1, 0);
+                    break;
+                case Keys.A:
+                    MoveSelection(0, -1);
+                    break;
+                case Keys.D:
+                    MoveSelection(0, 1);
+                    break;
+                case Keys.O:
+                    PerformLeftClick();
+                    break;
+                case Keys.P:
+                    PerformRightClick();
+                    keyboardFlagSet = true;
+                    break;
+            }
         }
 
         private void InitCells()
@@ -60,7 +97,6 @@ namespace NMines
                     int y = yPad + i * cellSize;
 
                     cells[i, j] = new Cell(this, mapCell: Map.Field[i, j], size: cellSize, isHovered: false);
-                    //this.Controls.Add(cell);
                 }
             }
         }
@@ -79,42 +115,7 @@ namespace NMines
         }
 
 
-        //protected override void OnClick(EventArgs e)
-        //{
-        //    base.OnClick(e);
-        //    Focus();
-        //}
-
-
-        //protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        //{
-        //    int currentCellX = keyboardHoveredRow;
-        //    int currentCellY = keyboardHoveredCol;
-
-        //    switch (keyData)
-        //    {
-        //        case Keys.Up:
-        //            MoveSelection(-1, 0);
-        //            return true;
-        //        case Keys.Down:
-        //            MoveSelection(1, 0);
-        //            return true;
-        //        case Keys.Left:
-        //            MoveSelection(0, -1);
-        //            return true;
-        //        case Keys.Right:
-        //            MoveSelection(0, 1);
-        //            return true;
-        //        case Keys.W:
-        //            PerformLeftClick();
-        //            return true;
-        //        case Keys.E:
-        //            PerformRightClick();
-        //            return true;
-        //        default:
-        //            return base.ProcessCmdKey(ref msg, keyData);
-        //    }
-        //}
+        
 
         private void PerformLeftClick()
         {
@@ -128,6 +129,7 @@ namespace NMines
             if (isGameOver) return;
 
             OnRightButtonClick(keyboardHoveredRow, keyboardHoveredCol);
+            keyboardFlagSet = false;
         }
 
         private void MoveSelection(int dRow, int dCol)
@@ -142,7 +144,7 @@ namespace NMines
                 newRow = (newRow + dRow + Map.RowsCount) % Map.RowsCount;
                 newCol = (newCol + dCol + Map.ColsCount) % Map.ColsCount;
             }
-            while (Map.Field[newRow, newCol].IsOpened && !(newRow == hoveredRow && newCol == hoveredCol));
+            while (Map.Field[newRow, newCol].IsOpened && !(newRow == keyboardHoveredRow && newCol == keyboardHoveredCol));
 
             keyboardHoveredRow = newRow;
             keyboardHoveredCol = newCol;
@@ -181,7 +183,7 @@ namespace NMines
                 Map.SeedMines(row, col);
                 Map.CountMinesAroundCells();
                 Map.isFirstStep = false;
-                GameUI.TimeLabel.StartTimer();
+               // GameUI.TimeLabel.StartTimer();
             }
 
             if (!isGameOver && !Map.Field[row, col].IsFlagged)
@@ -229,19 +231,22 @@ namespace NMines
 
         private void MapWidget_MouseMove(object sender, MouseEventArgs e)
         {
-            int row = (e.Y - yPad) / cellSize;
-            int col = (e.X - xPad) / cellSize;
-
-            if (row != hoveredRow || col != hoveredCol)
+            if (!keyboardFlagSet)
             {
-                hoveredRow = row;
-                hoveredCol = col;
+                int row = (e.Y - yPad) / cellSize;
+                int col = (e.X - xPad) / cellSize;
 
-                // синхронизация координат клавиатуры с координатами мыши
-                keyboardHoveredRow = row;
-                keyboardHoveredCol = col;
+                if (row != hoveredRow || col != hoveredCol)
+                {
+                    hoveredRow = row;
+                    hoveredCol = col;
 
-                Invalidate();
+                    // синхронизация координат клавиатуры с координатами мыши
+                    keyboardHoveredRow = row;
+                    keyboardHoveredCol = col;
+
+                    Invalidate();
+                }
             }
         }
 
@@ -266,9 +271,9 @@ namespace NMines
                     cells[i, j].IsHovered = isKeyboardHovered;
                     cells[i, j].Draw(graphics, x, y);
 
-                    if (isKeyboardHovered)
+                    if (isKeyboardHovered || (isMouseHovered && keyboardFlagSet))
                     {
-                        using (Pen pen = new Pen(Color.Green, 2))
+                        using (Pen pen = new Pen(Color.Black, 2))
                         {
                             graphics.DrawRectangle(pen, x, y, cellSize, cellSize);
                         }
