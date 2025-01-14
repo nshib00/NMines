@@ -6,8 +6,6 @@ namespace NMines
 {
     public partial class MainForm : Form
     {
-        // сделать отдельный класс контроллер поля
-
         public MainForm()
         {
             KeyPreview = true;

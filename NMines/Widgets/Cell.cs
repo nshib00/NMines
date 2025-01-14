@@ -13,6 +13,7 @@ namespace NMines.Widgets
         public bool IsFlagged { get; private set; }
         public bool IsHovered { get; set; }
         private int CellSize { get; set; }
+        public Image Image { get; set; }
 
         private readonly Color DefaultColor = Color.LightGray;
         private readonly Color HoveredColor = Color.LightBlue;
@@ -23,7 +24,7 @@ namespace NMines.Widgets
         private readonly Font CellsFont = new Font("Segoe UI", 16);
 
 
-        public Cell(MapWidget mapWidget, MapCell mapCell, int size, bool isHovered)
+        public Cell(MapWidget mapWidget, MapCell mapCell, int size, bool isHovered, Image image)
         {
             this.mapWidget = mapWidget;
 
@@ -32,8 +33,7 @@ namespace NMines.Widgets
             IsOpened = mapCell.IsOpened;
             IsHovered = isHovered;
             CellSize = size;
-
-            //Tag = mapCell.GetTag();
+            Image = image;
         }
 
         public void UpdateState(MapCell mapCell)
@@ -48,6 +48,12 @@ namespace NMines.Widgets
             return (Value == -1);
         }
 
+        public void RemoveFlag()
+        {
+            Image = mapWidget.FindCellImage(1, 3);
+        }
+
+
         public void Draw(Graphics graphics, int x, int y)
         {
             Color cellColor = DefaultColor;
@@ -60,37 +66,27 @@ namespace NMines.Widgets
             }
             if (IsFlagged)
             {
-                cellColor = FlaggedColor;
+                Image = mapWidget.FindCellImage(1, 2);
             }
 
             if (IsOpened)
             {
-                cellColor = OpenedColor;
+                Image = mapWidget.FindCellImage(1, 4);
                 if (IsMine())
                 {
-                    cellColor = MineColor;
+                    Image = mapWidget.FindCellImage(1, 0);
                 }
             }
 
-            using (Brush brush = new SolidBrush(cellColor))
-            {
-                graphics.FillRectangle(brush, x, y, CellSize, CellSize);
-            }
-
-            using (Pen pen = new Pen(Color.Black, borderWidth))
-            {
-                graphics.DrawRectangle(pen, x, y, CellSize, CellSize);
-            }
-
             if (IsOpened)
             {
-                string text = "";
                 if (IsMine())
-                    text = "*";
+                    Image = mapWidget.FindCellImage(1, 0);
                 else if (Value > 0)
-                    text = Value.ToString();
-                TextRenderer.DrawText(graphics, text, CellsFont, new Point(x + CellSize / 5, y + CellSize / 5), Color.Black);
+                    Image = mapWidget.FindCellImage(0, Value - 1);
             }
+
+            graphics.DrawImage(Image, x, y, CellSize, CellSize);
         }
     }
 }

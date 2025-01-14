@@ -1,6 +1,7 @@
 ﻿using NMines.Widgets;
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 
@@ -10,6 +11,9 @@ namespace NMines
     {
         private MainForm form;
         private Cell[,] cells;
+        private Image cellImageSet;
+
+        private const int CellImageSize = 64;
 
         public Map Map { get; private set; }
 
@@ -36,6 +40,9 @@ namespace NMines
             this.xPad = xPad;
             this.yPad = yPad;
 
+            string imagePath = Path.Combine(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName.ToString(), "Images/tiles.jpg");
+            cellImageSet = new Bitmap(imagePath);
+
             topFieldHeight = 50;
             keyboardHoveredRow = Map.RowsCount / 2;
             keyboardHoveredCol = Map.ColsCount / 2;
@@ -49,6 +56,20 @@ namespace NMines
             ConfigureSize();
 
             InitCells();
+        }
+
+        public Image FindCellImage(int xPos, int yPos)
+        {
+            Image image = new Bitmap(cellSize, cellSize);
+
+            using (Graphics graphics = Graphics.FromImage(image))
+            {
+                Rectangle sourceRect = new Rectangle(CellImageSize * yPos, CellImageSize * xPos, CellImageSize, CellImageSize);
+                Rectangle destRect = new Rectangle(0, 0, cellSize, cellSize);
+                graphics.DrawImage(cellImageSet, destRect, sourceRect, GraphicsUnit.Pixel);
+            }
+
+            return image;
         }
 
         protected override void OnClick(EventArgs e)
@@ -87,8 +108,9 @@ namespace NMines
 
         private void InitCells()
         {
-            cells = new Cell[Map.RowsCount, Map.ColsCount];
+            Image emptyCellImage = FindCellImage(1, 3);
 
+            cells = new Cell[Map.RowsCount, Map.ColsCount];
             for (int i = 0; i < Map.RowsCount; i++)
             {
                 for (int j = 0; j < Map.ColsCount; j++)
@@ -96,7 +118,7 @@ namespace NMines
                     int x = xPad + j * cellSize;
                     int y = yPad + i * cellSize;
 
-                    cells[i, j] = new Cell(this, mapCell: Map.Field[i, j], size: cellSize, isHovered: false);
+                    cells[i, j] = new Cell(this, mapCell: Map.Field[i, j], size: cellSize, isHovered: false, image: FindCellImage(1, 3));
                 }
             }
         }
@@ -114,8 +136,6 @@ namespace NMines
             Invalidate();
         }
 
-
-        
 
         private void PerformLeftClick()
         {
@@ -213,6 +233,7 @@ namespace NMines
                 else
                 {
                     Map.Field[row, col].IsFlagged = false;
+                    cells[row, col].RemoveFlag();
                     IncreaseMinesCount();
                 }
 
@@ -275,7 +296,7 @@ namespace NMines
                     {
                         using (Pen pen = new Pen(Color.Black, 2))
                         {
-                            graphics.DrawRectangle(pen, x, y, cellSize, cellSize);
+                            graphics.DrawRectangle(pen, x - 1, y - 1, cellSize, cellSize);
                         }
                     }
                 }
@@ -302,6 +323,19 @@ namespace NMines
             }
             UpdateCells();
         }
+
+
+        public void CloseCells()
+        {
+            for (int i = 0; i < Map.RowsCount; i++)
+            {
+                for (int j = 0; j < Map.ColsCount; j++)
+                {
+                    cells[i, j].Image = FindCellImage(1, 3);
+                }
+            }
+        }
+
 
 
         private void OpenCell(int row, int col)
@@ -343,6 +377,7 @@ namespace NMines
             isGameOver = false;
             hoveredRow = -1;
             hoveredCol = -1;
+            CloseCells();
             UpdateCells();
         }
 
