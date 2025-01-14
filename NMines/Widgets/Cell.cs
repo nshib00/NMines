@@ -5,33 +5,14 @@ using System.Windows.Forms;
 
 namespace NMines.Widgets
 {
-    public class CellClickEventArgs : EventArgs
-    {
-        public int Value { get; }
-        public bool IsOpened { get; }
-        public bool IsFlagged { get; }
-
-        public CellClickEventArgs(int value, bool isOpened, bool isFlagged)
-        {
-            Value = value;
-            IsOpened = isOpened;
-            IsFlagged = isFlagged;
-        }
-    }
-
-    public class CellHoverEventArgs : CellClickEventArgs
-    {
-        public CellHoverEventArgs(int value, bool isOpened, bool isFlagged) : base(value, isOpened, isFlagged) {}
-    }
-
-    public class Cell : Control
+    public class Cell
     {
         private MapWidget mapWidget;
         public int Value { get; private set; }
         public bool IsOpened { get; private set; }
         public bool IsFlagged { get; private set; }
         public bool IsHovered { get; set; }
-        private int Size { get; set; }
+        private int CellSize { get; set; }
 
         private readonly Color DefaultColor = Color.LightGray;
         private readonly Color HoveredColor = Color.LightBlue;
@@ -40,10 +21,6 @@ namespace NMines.Widgets
         private readonly Color FlaggedColor = Color.Brown;
 
         private readonly Font CellsFont = new Font("Segoe UI", 16);
-
-        public event EventHandler<CellClickEventArgs> LeftClicked;
-        public event EventHandler<CellClickEventArgs> RightClicked;
-        public event EventHandler<CellHoverEventArgs> Hovered;
 
 
         public Cell(MapWidget mapWidget, MapCell mapCell, int size, bool isHovered)
@@ -54,24 +31,9 @@ namespace NMines.Widgets
             IsFlagged = mapCell.IsFlagged;
             IsOpened = mapCell.IsOpened;
             IsHovered = isHovered;
-            Size = size;
+            CellSize = size;
 
-            SetStyle(ControlStyles.Selectable, true);
-            TabStop = true;
             //Tag = mapCell.GetTag();
-        }
-
-
-        private void Open()
-        {
-            IsOpened = true;
-            Invalidate();
-        }
-
-        private void ToggleFlag()
-        {
-            IsFlagged = !IsFlagged;
-            Invalidate();
         }
 
         public void UpdateState(MapCell mapCell)
@@ -79,25 +41,7 @@ namespace NMines.Widgets
             Value = mapCell.Value;
             IsFlagged = mapCell.IsFlagged;
             IsOpened = mapCell.IsOpened;
-            Invalidate();
         }
-
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-
-            if (e.KeyCode == Keys.W && !IsOpened)
-            {
-                Open();
-                LeftClicked?.Invoke(this, new CellClickEventArgs(Value, IsOpened, IsFlagged));
-            }
-            else if (e.KeyCode == Keys.E && !IsOpened)
-            {
-                ToggleFlag();
-                RightClicked?.Invoke(this, new CellClickEventArgs(Value, IsOpened, IsFlagged));
-            }
-        }
-
 
         public bool IsMine()
         {
@@ -130,12 +74,12 @@ namespace NMines.Widgets
 
             using (Brush brush = new SolidBrush(cellColor))
             {
-                graphics.FillRectangle(brush, x, y, Size, Size);
+                graphics.FillRectangle(brush, x, y, CellSize, CellSize);
             }
 
             using (Pen pen = new Pen(Color.Black, borderWidth))
             {
-                graphics.DrawRectangle(pen, x, y, Size, Size);
+                graphics.DrawRectangle(pen, x, y, CellSize, CellSize);
             }
 
             if (IsOpened)
@@ -145,10 +89,8 @@ namespace NMines.Widgets
                     text = "*";
                 else if (Value > 0)
                     text = Value.ToString();
-                TextRenderer.DrawText(graphics, text, CellsFont, new Point(x + Size / 5, y + Size / 5), Color.Black);
+                TextRenderer.DrawText(graphics, text, CellsFont, new Point(x + CellSize / 5, y + CellSize / 5), Color.Black);
             }
-
-            Invalidate();
         }
     }
 }
