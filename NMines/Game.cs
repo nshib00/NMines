@@ -18,6 +18,10 @@ namespace NMines
 
         private static MainForm form;
 
+        // этот флаг необходим в случае, если игрок выбирает уровень через комбобокс и отменяет выбор, чтобы не появлялось диалоговое окно с подтверждением
+        // выбора уровня, который и так уже был выбран
+        private static bool suppressSelectionChange = false;
+
 
         private static Dictionary<GameLevel, GameConfig> GetGameConfigs()
         {
@@ -51,17 +55,37 @@ namespace NMines
         }
 
 
+        private static void AddGameLevelsToCombobox(GameUI ui)
+        {
+            foreach (GameLevel level in Enum.GetValues(typeof(GameLevel)))
+            {
+                ui.DifficultyCombobox.Items.Add(GameLevelToString(level));
+            }
+            ui.DifficultyCombobox.SelectedIndex = config.GetCurrentLevelIndex();
+        }
+
+
+        private static string GameLevelToString(GameLevel level)
+        {
+            string levelName = level.ToString().ToLower();
+            return char.ToUpper(levelName[0]) + levelName.Substring(1);
+        }
+
         private static void SetupGame()
         {
             var gameConfigs = GetGameConfigs();
             config = gameConfigs[level];
             ui = new GameUI(config);
+            AddGameLevelsToCombobox(ui);
             ui.DifficultyCombobox.SelectedIndexChanged += DifficultyComboBox_SelectedIndexChanged;
             SetGameLevelFromToolbar(ui);
         }
 
         private static void DifficultyComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (suppressSelectionChange)
+                return;
+
             ToolStripComboBox comboBox = sender as ToolStripComboBox;
             string selectedDifficulty = comboBox.SelectedItem.ToString();
 
@@ -97,6 +121,12 @@ namespace NMines
                 form.MoveToCenter();
 
                 GameUI.TimeLabel.ResetTimer();
+            }
+            else
+            {
+                suppressSelectionChange = true;
+                comboBox.SelectedItem = GameLevelToString(level);
+                suppressSelectionChange = false;
             }
         }
 

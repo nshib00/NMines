@@ -31,6 +31,7 @@ namespace NMines.Widgets
             InitGameFieldPanel();
         }
 
+
         private void InitGameToolbar()
         {
             GameToolbar = new ToolStrip()
@@ -49,29 +50,12 @@ namespace NMines.Widgets
             GameToolbar.Items.Add(new ToolStripLabel("Load game"));
         }
 
-        private int GetCurrentLevelIndex()
-        {
-            switch (config.MinesCount)
-            {
-                case 10:
-                    return 0;
-                case 40:
-                    return 1;
-                case 99:
-                    return 2;
-                default:
-                    return 0;
-            }
-        }
 
-
+    
         private void InitDifficultyCombobox()
         {
             DifficultyCombobox = new ToolStripComboBox();
             DifficultyCombobox.DropDownStyle = ComboBoxStyle.DropDownList;
-
-            DifficultyCombobox.Items.AddRange(new string[] { "Easy", "Medium", "Hard" } );
-            DifficultyCombobox.SelectedIndex = GetCurrentLevelIndex();
         }
 
 
