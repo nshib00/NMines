@@ -82,6 +82,7 @@
     <Compile Include="GameConfig.cs" />
     <Compile Include="GameLevel.cs" />
     <Compile Include="GameState.cs" />
+    <Compile Include="ImageCache.cs" />
     <Compile Include="Widgets\Cell.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

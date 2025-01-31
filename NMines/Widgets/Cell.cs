@@ -24,7 +24,7 @@ namespace NMines.Widgets
         private readonly Font CellsFont = new Font("Segoe UI", 16);
 
 
-        public Cell(MapWidget mapWidget, MapCell mapCell, int size, bool isHovered, Image image)
+        public Cell(MapWidget mapWidget, MapCell mapCell, int size, bool isHovered)
         {
             this.mapWidget = mapWidget;
 
@@ -33,7 +33,7 @@ namespace NMines.Widgets
             IsOpened = mapCell.IsOpened;
             IsHovered = isHovered;
             CellSize = size;
-            Image = image;
+            Image = mapWidget.CellImages.ClosedCell;
         }
 
         public void UpdateState(MapCell mapCell)
@@ -50,7 +50,7 @@ namespace NMines.Widgets
 
         public void RemoveFlag()
         {
-            Image = mapWidget.FindCellImage(1, 3);
+            Image = mapWidget.CellImages.ClosedCell;
         }
 
 
@@ -66,24 +66,24 @@ namespace NMines.Widgets
             }
             if (IsFlagged)
             {
-                Image = mapWidget.FindCellImage(1, 2);
+                Image = mapWidget.CellImages.Flag;
             }
 
             if (IsOpened)
             {
-                Image = mapWidget.FindCellImage(1, 4);
+                Image = mapWidget.CellImages.EmptyCell;
                 if (IsMine())
                 {
-                    Image = mapWidget.FindCellImage(1, 0);
+                    Image = mapWidget.CellImages.Mine;
                 }
             }
 
             if (IsOpened)
             {
                 if (IsMine())
-                    Image = mapWidget.FindCellImage(1, 0);
+                    Image = mapWidget.CellImages.Mine;
                 else if (Value > 0)
-                    Image = mapWidget.FindCellImage(0, Value - 1);
+                    Image = mapWidget.CellImages.NumberCells[Value - 1];
             }
 
             graphics.DrawImage(Image, x, y, CellSize, CellSize);
