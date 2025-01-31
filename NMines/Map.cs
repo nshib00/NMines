@@ -114,5 +114,30 @@ namespace NMines
             return flaggedMines;
         }
 
+        public void OpenCell(int row, int col)
+        {
+            if (Field[row, col].IsOpened) return;
+            Field[row, col].IsOpened = true;
+
+            if (Field[row, col].Value == 0)
+            {
+                OpenEmptyNeighbors(row, col);
+            }
+        }
+
+        public void OpenEmptyNeighbors(int row, int col)
+        {
+            for (int i = row - 1; i <= row + 1; i++)
+            {
+                for (int j = col - 1; j <= col + 1; j++)
+                {
+                    if (i >= 0 && i < RowsCount && j >= 0 && j < ColsCount && !Field[i, j].IsOpened && Field[i, j].Value != -1)
+                    {
+                        OpenCell(i, j);
+                    }
+                }
+            }
+        }
+
     }
 }

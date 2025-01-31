@@ -186,7 +186,7 @@ namespace NMines
 
             if (!isGameOver && !Map.Field[row, col].IsFlagged)
             {
-                OpenCell(row, col);
+                Map.OpenCell(row, col);
                 UpdateCells();
 
                 if (Map.Field[row, col].Value == -1)
@@ -296,7 +296,7 @@ namespace NMines
             {
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    OpenCell(i, j);
+                    Map.OpenCell(i, j);
                 }
             }
             UpdateCells();
@@ -310,32 +310,6 @@ namespace NMines
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
                     cells[i, j].Image = CellImages.ClosedCell;
-                }
-            }
-        }
-
-
-        private void OpenCell(int row, int col)
-        {
-            if (Map.Field[row, col].IsOpened) return;
-            Map.Field[row, col].IsOpened = true;
-
-            if (Map.Field[row, col].Value == 0)
-            {
-                OpenEmptyNeighbors(row, col);
-            }
-        }
-
-        private void OpenEmptyNeighbors(int row, int col)
-        {
-            for (int i = row - 1; i <= row + 1; i++)
-            {
-                for (int j = col - 1; j <= col + 1; j++)
-                {
-                    if (i >= 0 && i < Map.RowsCount && j >= 0 && j < Map.ColsCount && !Map.Field[i, j].IsOpened && Map.Field[i, j].Value != -1)
-                    {
-                        OpenCell(i, j);
-                    }
                 }
             }
         }
