@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.Timers;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 
 
@@ -45,13 +46,48 @@ namespace NMines.Widgets
             GameToolbar.Items.Add(new ToolStripLabel("Difficulty"));
             GameToolbar.Items.Add(DifficultyCombobox);
             GameToolbar.Items.Add(new ToolStripSeparator());
-            GameToolbar.Items.Add(new ToolStripLabel("Save game"));
+
+            var saveButton = new ToolStripButton("Save game");
+            saveButton.Click += GameToolbarSave_Click;
+            saveButton.Font = new Font("Segoe UI", 8);
+            GameToolbar.Items.Add(saveButton);
+
             GameToolbar.Items.Add(new ToolStripSeparator());
-            GameToolbar.Items.Add(new ToolStripLabel("Load game"));
+
+            var loadButton = new ToolStripButton("Load game");
+            loadButton.Click += GameToolbarLoad_Click;
+            loadButton.Font = new Font("Segoe UI", 8);
+            GameToolbar.Items.Add(loadButton);
         }
 
+        private void GameToolbarSave_Click(object sender, EventArgs e)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream("data.bin", FileMode.Create))
+            {
+                GameState state = Game.GetGameState();
+                formatter.Serialize(stream, state);
+            }
+            MessageBox.Show("The game is saved.");
+        }
 
-    
+        private void GameToolbarLoad_Click(object sender, EventArgs e)
+        {
+            if (!File.Exists("data.bin"))
+            {
+                MessageBox.Show("No saved game found.");
+                return;
+            }
+
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (FileStream stream = new FileStream("data.bin", FileMode.Open))
+            {
+                GameState state = (GameState)formatter.Deserialize(stream);
+                Game.SetGameState(state);
+            }
+            MessageBox.Show("The game is loaded.");
+        }
+
         private void InitDifficultyCombobox()
         {
             DifficultyCombobox = new ToolStripComboBox();

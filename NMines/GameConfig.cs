@@ -1,5 +1,8 @@
-﻿namespace NMines
+﻿using System;
+
+namespace NMines
 {
+    [Serializable]
     public class GameConfig
     {
         public int RowsCount { get; }

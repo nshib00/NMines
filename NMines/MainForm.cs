@@ -27,5 +27,10 @@ namespace NMines
             
             Location = new Point(x, y);
         }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

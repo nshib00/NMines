@@ -53,6 +53,13 @@ namespace NMines.Widgets
         }
 
 
+        public void SetGameTime(int seconds)
+        {
+            gameTime = seconds;
+            UpdateTimer();
+        }
+
+
         public void ResetTimer()
         {
             gameTime = 0;
@@ -61,8 +68,7 @@ namespace NMines.Widgets
         }
 
         public void StartTimer()
-        {
-            
+        {  
             gameTimer.Start();
         }
 

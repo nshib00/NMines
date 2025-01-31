@@ -189,5 +189,60 @@ namespace NMines
             Game.form = form;
             StartGame();
         }
+
+        public static GameState GetGameState()
+        {
+            return new GameState
+            {
+                Level = level,
+                Config = config,
+                Map = map,
+                GameTime = int.Parse(GameUI.TimeLabel.GetGameTime()),
+            };
+        }
+
+        public static void SetGameState(GameState state)
+        {
+            if (state == null) return;
+
+            bool levelChanged = state.Level != level;
+            level = state.Level;
+            config = state.Config;
+            map = state.Map;
+
+            if (levelChanged)
+            {
+                suppressSelectionChange = true;
+                ui.DifficultyCombobox.SelectedIndex = config.GetCurrentLevelIndex();
+                suppressSelectionChange = false;
+
+                if (mapWidget != null)
+                {
+                    GameUI.GameFieldPanel.Controls.Remove(mapWidget);
+                    mapWidget.Dispose();
+                }
+
+                mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
+                GameUI.GameFieldPanel.Controls.Add(mapWidget);
+                mapWidget.UpdateCells();
+
+                ui.RestartButton.Click += RestartButton_Click;
+
+                GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
+                form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
+                form.Size = form.MinimumSize;
+            }
+
+            GameUI.MinesCountLabel.Text = (config.MinesCount - map.CountFlaggedMines()).ToString();
+            GameUI.TimeLabel.StopTimer();
+            GameUI.TimeLabel.SetGameTime(state.GameTime);
+            GameUI.TimeLabel.StartTimer();
+
+            mapWidget.LoadSavedMap(map);
+            mapWidget.ConfigureSize();
+            form.MoveToCenter();
+        }
+
+
     }
 }

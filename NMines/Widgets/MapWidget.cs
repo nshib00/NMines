@@ -395,5 +395,15 @@ namespace NMines
         {
             return int.Parse(GameUI.MinesCountLabel.Text);
         }
+
+        public void LoadSavedMap(Map map)
+        {
+            Map = map;
+            isGameOver = false;
+
+            InitCells();
+            UpdateCells();
+            Invalidate();
+        }
     }
 }

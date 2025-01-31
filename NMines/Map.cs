@@ -3,6 +3,7 @@
 
 namespace NMines
 {
+    [Serializable]
     public struct MapCell
     {
         public int Value;
@@ -17,6 +18,7 @@ namespace NMines
         }
     }
 
+    [Serializable]
     public class Map
     {
         public int RowsCount { get; }
