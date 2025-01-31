@@ -40,17 +40,12 @@ namespace NMines
 
         private static void SetGameLevelFromToolbar(GameUI gameUI)
         {
-            switch (gameUI.DifficultyCombobox.SelectedIndex)
+            GameLevel[] levels = { GameLevel.EASY, GameLevel.MEDIUM, GameLevel.HARD };
+            int selectedIndex = gameUI.DifficultyCombobox.SelectedIndex;
+
+            if (selectedIndex >= 0 && selectedIndex < levels.Length)
             {
-                case 0:
-                    level = GameLevel.EASY;
-                    break;
-                case 1:
-                    level = GameLevel.MEDIUM;
-                    break;
-                case 2:
-                    level = GameLevel.HARD;
-                    break;
+                level = levels[gameUI.DifficultyCombobox.SelectedIndex];
             }
         }
 
@@ -73,12 +68,47 @@ namespace NMines
 
         private static void SetupGame()
         {
-            var gameConfigs = GetGameConfigs();
-            config = gameConfigs[level];
+            GetConfigByLevel();
             ui = new GameUI(config);
             AddGameLevelsToCombobox(ui);
             ui.DifficultyCombobox.SelectedIndexChanged += DifficultyComboBox_SelectedIndexChanged;
             SetGameLevelFromToolbar(ui);
+        }
+
+
+        private static void UpdateGameUI()
+        {
+            // метод перерисовки карты, вызывается при начале игры после выбора другого уровня и при загрузке сохраненной игры
+            RecreateMapWidget();
+            SetFormSize();
+            GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
+            ui.RestartButton.Click += RestartButton_Click;
+        }
+
+        private static void GetConfigByLevel()
+        {
+            var gameConfigs = GetGameConfigs();
+            config = gameConfigs[level];
+        }
+
+        private static void RecreateMapWidget()
+        {
+            if (mapWidget != null)
+            {
+                GameUI.GameFieldPanel.Controls.Remove(mapWidget);
+                mapWidget.Dispose();
+            }
+            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
+            GameUI.GameFieldPanel.Controls.Add(mapWidget);
+            mapWidget.ConfigureSize();
+        }
+
+        private static void SetFormSize()
+        {
+            GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
+            form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
+            form.Size = form.MinimumSize;
+            form.MoveToCenter();
         }
 
         private static void DifficultyComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -95,30 +125,12 @@ namespace NMines
             if (confirmResult == DialogResult.Yes)
             {
                 SetGameLevelFromToolbar(ui);
-                var gameConfigs = GetGameConfigs();
-                config = gameConfigs[level];
+                GetConfigByLevel();
 
                 map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
                 map.InitField();
 
-                if (mapWidget != null)
-                {
-                    GameUI.GameFieldPanel.Controls.Remove(mapWidget);
-                    mapWidget.Dispose();
-                }
-
-                mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
-                GameUI.GameFieldPanel.Controls.Add(mapWidget);
-                mapWidget.ConfigureSize();
-
-                GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
-
-                ui.RestartButton.Click += RestartButton_Click;
-
-                GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
-                form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
-                form.Size = form.MinimumSize;
-                form.MoveToCenter();
+                UpdateGameUI();
 
                 GameUI.TimeLabel.ResetTimer();
             }
@@ -130,7 +142,6 @@ namespace NMines
             }
         }
 
-
         private static void RestartButton_Click(object sender, EventArgs e)
         {
             map.InitField();
@@ -139,7 +150,6 @@ namespace NMines
             GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
             GameUI.TimeLabel.RestartTimer();
         }
-
 
         private static void CreateMainLayout(Form form)
         {
@@ -216,21 +226,7 @@ namespace NMines
                 ui.DifficultyCombobox.SelectedIndex = config.GetCurrentLevelIndex();
                 suppressSelectionChange = false;
 
-                if (mapWidget != null)
-                {
-                    GameUI.GameFieldPanel.Controls.Remove(mapWidget);
-                    mapWidget.Dispose();
-                }
-
-                mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
-                GameUI.GameFieldPanel.Controls.Add(mapWidget);
-                mapWidget.UpdateCells();
-
-                ui.RestartButton.Click += RestartButton_Click;
-
-                GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
-                form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
-                form.Size = form.MinimumSize;
+                UpdateGameUI();
             }
 
             GameUI.MinesCountLabel.Text = (config.MinesCount - map.CountFlaggedMines()).ToString();
@@ -242,7 +238,5 @@ namespace NMines
             mapWidget.ConfigureSize();
             form.MoveToCenter();
         }
-
-
     }
 }
