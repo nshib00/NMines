@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.Drawing;
 
 
 namespace NMines.Widgets
@@ -12,6 +10,7 @@ namespace NMines.Widgets
         public bool IsOpened { get; private set; }
         public bool IsFlagged { get; private set; }
         public bool IsHovered { get; set; }
+        public bool IsExploded { get; set; }
         private int CellSize { get; set; }
         public Image Image { get; set; }
 
@@ -48,6 +47,7 @@ namespace NMines.Widgets
             return (Value == -1);
         }
 
+
         public void RemoveFlag()
         {
             Image = mapWidget.CellImages.ClosedCell;
@@ -57,31 +57,30 @@ namespace NMines.Widgets
         public void Draw(Graphics graphics, int x, int y)
         {
             Color cellColor = DefaultColor;
-            byte borderWidth = 1;
 
             if (IsHovered)
             {
                 cellColor = HoveredColor;
-                borderWidth = 2;
             }
+
             if (IsFlagged)
             {
                 Image = mapWidget.CellImages.Flag;
             }
-
-            if (IsOpened)
+            else if (IsOpened)
             {
                 Image = mapWidget.CellImages.EmptyCell;
                 if (IsMine())
                 {
-                    Image = mapWidget.CellImages.Mine;
+                    if (IsExploded)
+                    {
+                        Image = mapWidget.CellImages.ExplodedMine;
+                    }
+                    else
+                    {
+                        Image = mapWidget.CellImages.Mine;
+                    }
                 }
-            }
-
-            if (IsOpened)
-            {
-                if (IsMine())
-                    Image = mapWidget.CellImages.Mine;
                 else if (Value > 0)
                     Image = mapWidget.CellImages.NumberCells[Value - 1];
             }

@@ -9,6 +9,7 @@ namespace NMines.Widgets
         private Image cellImageSet;
 
         public Image Mine { get; private set; }
+        public Image ExplodedMine { get; private set; }
         public Image Flag { get; private set; }
         public Image ClosedCell { get; private set; }
         public Image EmptyCell { get; private set; }
@@ -32,6 +33,7 @@ namespace NMines.Widgets
                 NumberCells[i] = FindCellImage(0, i);
             }
             Mine = FindCellImage(1, 0);
+            ExplodedMine = FindCellImage(1, 1);
             Flag = FindCellImage(1, 2);
             ClosedCell = FindCellImage(1, 3);
             EmptyCell = FindCellImage(1, 4);

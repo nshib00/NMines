@@ -192,6 +192,8 @@ namespace NMines
                 if (Map.Field[row, col].Value == -1)
                 {
                     isGameOver = true;
+                    cells[row, col].IsExploded = true;
+
                     GameUI.TimeLabel.StopTimer();
                     RevealCells();
                     MessageBox.Show("You lose.");
