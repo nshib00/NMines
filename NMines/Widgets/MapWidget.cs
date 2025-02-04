@@ -213,7 +213,7 @@ namespace NMines
                 else
                 {
                     Map.Field[row, col].IsFlagged = false;
-                    cells[row, col].RemoveFlag();
+                    cells[row, col].Close();
                     IncreaseMinesCount();
                 }
 
@@ -311,7 +311,7 @@ namespace NMines
             {
                 for (int j = 0; j < Map.ColsCount; j++)
                 {
-                    cells[i, j].Image = CellImages.ClosedCell;
+                    cells[i, j].Close();
                 }
             }
         }
