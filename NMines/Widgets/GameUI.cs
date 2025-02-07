@@ -9,17 +9,14 @@ namespace NMines.Widgets
 {
     public class GameUI
     {
-        public static Panel TopPanel { get; private set; }
-        public static FlowLayoutPanel GameFieldPanel { get; private set; }        
-        public static TimeLabel TimeLabel { get; private set; }
-        public static Label MinesCountLabel { get; private set; }
-        public static ToolStrip GameToolbar { get; private set; }
-
+        public Panel TopPanel { get; private set; }
+        public FlowLayoutPanel GameFieldPanel { get; private set; }        
+        public TimeLabel TimeLabel { get; private set; }
+        public Label MinesCountLabel { get; private set; }
+        public ToolStrip GameToolbar { get; private set; }
         public Button RestartButton { get; private set; }
         public ToolStripComboBox DifficultyCombobox { get; private set; }
-
-        public static int TopFieldHeight { get; private set; } = 45;
-
+        public int TopFieldHeight { get; private set; } = 45;
 
         private GameConfig config;
 

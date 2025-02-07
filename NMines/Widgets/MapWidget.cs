@@ -14,6 +14,8 @@ namespace NMines
         private const int CellImageSize = 64;
 
         public Map Map { get; private set; }
+
+        private GameUI ui;
         public ImageCache CellImages { get; private set; }
 
         private int cellSize;
@@ -39,10 +41,11 @@ namespace NMines
         public event EndGameHandler GameOver;
 
 
-        public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad)
+        public MapWidget(MainForm form, Map map, GameUI ui, int cellSize, int xPad, int yPad)
         {
             this.form = form;
             this.Map = map;
+            this.ui = ui;
             this.cellSize = cellSize;
             this.xPad = xPad;
             this.yPad = yPad;
@@ -191,7 +194,7 @@ namespace NMines
                 Map.SeedMines(row, col);
                 Map.CountMinesAroundCells();
                 Map.isFirstStep = false;
-                GameUI.TimeLabel.StartTimer();
+                ui.TimeLabel.StartTimer();
             }
 
             if (!isGameOver && !Map.Field[row, col].IsFlagged)
@@ -235,13 +238,13 @@ namespace NMines
 
         private void OnGameOver(bool isVictory)
         {
-            GameUI.TimeLabel.StopTimer();
+            ui.TimeLabel.StopTimer();
             RevealCells();
             string msgText;
 
             if (isVictory)
             {
-                string gameTime = GameUI.TimeLabel.GetGameTime();
+                string gameTime = ui.TimeLabel.GetGameTime();
                 msgText = $"You win!\nGame time: {gameTime} seconds.";
             }
             else
@@ -356,17 +359,17 @@ namespace NMines
 
         public void IncreaseMinesCount()
         {
-            GameUI.MinesCountLabel.Text = (GetMinesCount() + 1).ToString();
+            ui.MinesCountLabel.Text = (GetMinesCount() + 1).ToString();
         }
 
         public void DecreaseMinesCount()
         {
-            GameUI.MinesCountLabel.Text = (GetMinesCount() - 1).ToString();
+            ui.MinesCountLabel.Text = (GetMinesCount() - 1).ToString();
         }
 
         public int GetMinesCount()
         {
-            return int.Parse(GameUI.MinesCountLabel.Text);
+            return int.Parse(ui.MinesCountLabel.Text);
         }
 
         public void LoadSavedMap(Map map)

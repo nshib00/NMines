@@ -80,7 +80,7 @@ namespace NMines
             // метод перерисовки карты, вызывается при начале игры после выбора другого уровня и при загрузке сохраненной игры
             RecreateMapWidget();
             SetFormSize();
-            GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
+            ui.MinesCountLabel.Text = config.MinesCount.ToString();
             ui.RestartButton.Click += RestartButton_Click;
         }
 
@@ -94,17 +94,17 @@ namespace NMines
         {
             if (mapWidget != null)
             {
-                GameUI.GameFieldPanel.Controls.Remove(mapWidget);
+                ui.GameFieldPanel.Controls.Remove(mapWidget);
                 mapWidget.Dispose();
             }
-            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
-            GameUI.GameFieldPanel.Controls.Add(mapWidget);
+            mapWidget = new MapWidget(form, map, ui, config.CellSize, config.XPad, config.YPad);
+            ui.GameFieldPanel.Controls.Add(mapWidget);
             mapWidget.ConfigureSize();
         }
 
         private static void SetFormSize()
         {
-            GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
+            ui.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
             form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 40);
             form.Size = form.MinimumSize;
             form.MoveToCenter();
@@ -144,15 +144,15 @@ namespace NMines
                 RowCount = 3,
             };
 
-            GameUI.GameFieldPanel.Controls.Add(mapWidget);
+            ui.GameFieldPanel.Controls.Add(mapWidget);
 
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 20));
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, GameUI.TopFieldHeight));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, ui.TopFieldHeight));
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
 
-            mainLayout.Controls.Add(GameUI.GameToolbar, 0, 0);
-            mainLayout.Controls.Add(GameUI.TopPanel, 0, 1);
-            mainLayout.Controls.Add(GameUI.GameFieldPanel, 0, 2);
+            mainLayout.Controls.Add(ui.GameToolbar, 0, 0);
+            mainLayout.Controls.Add(ui.TopPanel, 0, 1);
+            mainLayout.Controls.Add(ui.GameFieldPanel, 0, 2);
 
             form.Controls.Add(mainLayout);
         }
@@ -164,7 +164,7 @@ namespace NMines
 
             map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
             map.InitField();
-            mapWidget = new MapWidget(form, map, config.CellSize, config.XPad, config.YPad);
+            mapWidget = new MapWidget(form, map, ui, config.CellSize, config.XPad, config.YPad);
 
             mapWidget.ConfigureSize();
 
@@ -172,7 +172,7 @@ namespace NMines
 
             form.MinimumSize = new Size(mapWidget.Width + 20, mapWidget.Height + 30);
 
-            GameUI.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
+            ui.GameFieldPanel.Size = new Size(mapWidget.Width, mapWidget.Height);
 
             CreateMainLayout(form);           
         }
@@ -190,7 +190,7 @@ namespace NMines
             map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
             map.InitField();
             UpdateGameUI();
-            GameUI.TimeLabel.ResetTimer();
+            ui.TimeLabel.ResetTimer();
         }
 
         private static void RestartButton_Click(object sender, EventArgs e)
@@ -198,8 +198,8 @@ namespace NMines
             map.InitField();
             mapWidget.Restart();
             mapWidget.Map.isFirstStep = true;
-            GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
-            GameUI.TimeLabel.RestartTimer();
+            ui.MinesCountLabel.Text = config.MinesCount.ToString();
+            ui.TimeLabel.RestartTimer();
         }
 
 
@@ -210,7 +210,7 @@ namespace NMines
                 Level = level,
                 Config = config,
                 Map = map,
-                GameTime = int.Parse(GameUI.TimeLabel.GetGameTime()),
+                GameTime = int.Parse(ui.TimeLabel.GetGameTime()),
             };
         }
 
@@ -232,10 +232,10 @@ namespace NMines
                 UpdateGameUI();
             }
 
-            GameUI.MinesCountLabel.Text = (config.MinesCount - map.CountFlaggedMines()).ToString();
-            GameUI.TimeLabel.StopTimer();
-            GameUI.TimeLabel.SetGameTime(state.GameTime);
-            GameUI.TimeLabel.StartTimer();
+            ui.MinesCountLabel.Text = (config.MinesCount - map.CountFlaggedMines()).ToString();
+            ui.TimeLabel.StopTimer();
+            ui.TimeLabel.SetGameTime(state.GameTime);
+            ui.TimeLabel.StartTimer();
 
             mapWidget.LoadSavedMap(map);
             mapWidget.ConfigureSize();
