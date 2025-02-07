@@ -12,11 +12,11 @@ namespace NMines
         public int XPad { get; }
         public int YPad { get; }
 
-        public GameConfig(int rowsCount, int colsCount, int minesCount, int cellSize, int xPad = 5, int yPad = 5)
+        public GameConfig(int rows, int cols, int mines, int cellSize, int xPad = 5, int yPad = 5)
         {
-            RowsCount = rowsCount;
-            ColsCount = colsCount;
-            MinesCount = minesCount;
+            RowsCount = rows;
+            ColsCount = cols;
+            MinesCount = mines;
             CellSize = cellSize;
             XPad = xPad;
             YPad = yPad;
@@ -36,5 +36,23 @@ namespace NMines
                     return 0;
             }
         }
+    }
+
+    [Serializable]
+    public class EasyGameConfig : GameConfig
+    {
+        public EasyGameConfig() : base(rows: 9, cols: 9, mines: 10, cellSize: 60) { }
+    }
+
+    [Serializable]
+    public class MediumGameConfig : GameConfig
+    {
+        public MediumGameConfig() : base(rows: 16, cols: 16, mines: 40, cellSize: 43) { }
+    }
+
+    [Serializable]
+    public class HardGameConfig : GameConfig
+    {
+        public HardGameConfig() : base(rows: 16, cols: 30, mines: 99, cellSize: 43) { }
     }
 }

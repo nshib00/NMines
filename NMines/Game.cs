@@ -9,7 +9,7 @@ namespace NMines
 {
     public static class Game
     {
-        private static GameLevel level = GameLevel.HARD;
+        private static GameLevel level = GameLevel.EASY;
         private static GameConfig config;
 
         private static GameUI ui;
@@ -18,6 +18,9 @@ namespace NMines
 
         private static MainForm form;
 
+        public delegate void LevelChangeHandler(GameLevel level);
+        public static event LevelChangeHandler OnLevelChange;
+
         // этот флаг необходим в случае, если игрок выбирает уровень через комбобокс и отменяет выбор, чтобы не появлялось диалоговое окно с подтверждением
         // выбора уровня, который и так уже был выбран
         private static bool suppressSelectionChange = false;
@@ -25,15 +28,11 @@ namespace NMines
 
         private static Dictionary<GameLevel, GameConfig> GetGameConfigs()
         {
-            GameConfig easyGameConfig = new GameConfig(rowsCount: 9, colsCount: 9, minesCount: 10, cellSize: 60);
-            GameConfig mediumGameConfig = new GameConfig(rowsCount: 16, colsCount: 16, minesCount: 40, cellSize: 43);
-            GameConfig hardGameConfig = new GameConfig(rowsCount: 16, colsCount: 30, minesCount: 99, cellSize: 43);
-
             return new Dictionary<GameLevel, GameConfig>()
             {
-                { GameLevel.EASY, easyGameConfig },
-                { GameLevel.MEDIUM, mediumGameConfig },
-                { GameLevel.HARD, hardGameConfig },
+                { GameLevel.EASY, new EasyGameConfig() },
+                { GameLevel.MEDIUM, new MediumGameConfig() },
+                { GameLevel.HARD, new HardGameConfig() },
             };
         }
 
@@ -126,13 +125,7 @@ namespace NMines
             {
                 SetGameLevelFromToolbar(ui);
                 GetConfigByLevel();
-
-                map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
-                map.InitField();
-
-                UpdateGameUI();
-
-                GameUI.TimeLabel.ResetTimer();
+                OnLevelChange?.Invoke(level);
             }
             else
             {
@@ -140,15 +133,6 @@ namespace NMines
                 comboBox.SelectedItem = GameLevelToString(level);
                 suppressSelectionChange = false;
             }
-        }
-
-        private static void RestartButton_Click(object sender, EventArgs e)
-        {
-            map.InitField();
-            mapWidget.Restart();
-            mapWidget.Map.isFirstStep = true;
-            GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
-            GameUI.TimeLabel.RestartTimer();
         }
 
         private static void CreateMainLayout(Form form)
@@ -197,8 +181,27 @@ namespace NMines
         public static void Init(MainForm form)
         {
             Game.form = form;
+            OnLevelChange += Game_OnLevelChange;
             StartGame();
         }
+
+        private static void Game_OnLevelChange(GameLevel level)
+        {
+            map = new Map(config.RowsCount, config.ColsCount, config.MinesCount);
+            map.InitField();
+            UpdateGameUI();
+            GameUI.TimeLabel.ResetTimer();
+        }
+
+        private static void RestartButton_Click(object sender, EventArgs e)
+        {
+            map.InitField();
+            mapWidget.Restart();
+            mapWidget.Map.isFirstStep = true;
+            GameUI.MinesCountLabel.Text = config.MinesCount.ToString();
+            GameUI.TimeLabel.RestartTimer();
+        }
+
 
         public static GameState GetGameState()
         {

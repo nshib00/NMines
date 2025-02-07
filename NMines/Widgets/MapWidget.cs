@@ -31,6 +31,13 @@ namespace NMines
 
         private bool isGameOver = false;
 
+        public delegate void CellClickHandler(int row, int col);
+        public delegate void EndGameHandler(bool isVictory);
+
+        public event CellClickHandler LeftClick;
+        public event CellClickHandler RightClick;
+        public event EndGameHandler GameOver;
+
 
         public MapWidget(MainForm form, Map map, int cellSize, int xPad, int yPad)
         {
@@ -47,6 +54,10 @@ namespace NMines
             MouseMove += MapWidget_MouseMove;
             MouseClick += MapWidget_MouseClick;
             KeyDown += MapWidget_KeyDown;
+
+            LeftClick += OnLeftButtonClick;
+            RightClick += OnRightButtonClick;
+            GameOver += OnGameOver;
 
             DoubleBuffered = true;
 
@@ -81,10 +92,10 @@ namespace NMines
                     MoveSelection(0, 1);
                     break;
                 case Keys.O:
-                    PerformLeftClick();
+                    KeyboardLeftClick();
                     break;
                 case Keys.P:
-                    PerformRightClick();
+                    KeyboardRightClick();
                     keyboardFlagSet = true;
                     break;
             }
@@ -119,14 +130,14 @@ namespace NMines
         }
 
 
-        private void PerformLeftClick()
+        private void KeyboardLeftClick()
         {
             if (isGameOver) return;
 
             OnLeftButtonClick(keyboardHoveredRow, keyboardHoveredCol);
         }
 
-        private void PerformRightClick()
+        private void KeyboardRightClick()
         {
             if (isGameOver) return;
 
@@ -155,7 +166,6 @@ namespace NMines
         }
 
 
-
         private void MapWidget_MouseClick(object sender, MouseEventArgs e)
         {
             int row = (e.Y - yPad) / cellSize;
@@ -165,11 +175,11 @@ namespace NMines
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    OnLeftButtonClick(row, col);
+                    LeftClick?.Invoke(row, col);
                 }
                 else if (e.Button == MouseButtons.Right)
                 {
-                    OnRightButtonClick(row, col);
+                    RightClick?.Invoke(row, col);
                 }
             }
         }
@@ -193,10 +203,7 @@ namespace NMines
                 {
                     isGameOver = true;
                     cells[row, col].IsExploded = true;
-
-                    GameUI.TimeLabel.StopTimer();
-                    RevealCells();
-                    MessageBox.Show("You lose.");
+                    GameOver?.Invoke(isVictory: false);                    
                 }
             }
         }
@@ -221,13 +228,26 @@ namespace NMines
 
                 if (Map.CountFlaggedMines() == Map.MinesCount)
                 {
-                    GameUI.TimeLabel.StopTimer();
-                    RevealCells();
-
-                    string gameTime = GameUI.TimeLabel.GetGameTime();
-                    MessageBox.Show($"You win!\nGame time: {gameTime} seconds."); 
+                    GameOver?.Invoke(isVictory: true);
                 }
             }
+        }
+
+        private void OnGameOver(bool isVictory)
+        {
+            GameUI.TimeLabel.StopTimer();
+            RevealCells();
+            string msgText;
+
+            if (isVictory)
+            {
+                string gameTime = GameUI.TimeLabel.GetGameTime();
+                msgText = $"You win!\nGame time: {gameTime} seconds.";
+            }
+            else
+                msgText = "You lose.";
+
+            MessageBox.Show(msgText);
         }
 
         private void MapWidget_MouseMove(object sender, MouseEventArgs e)
