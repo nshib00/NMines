@@ -29,17 +29,17 @@ namespace NMines
         private int keyboardHoveredRow;
         private int keyboardHoveredCol;
 
-        private bool keyboardFlagSet = false;
+        private bool blockMouseHover = false;
 
         private bool isGameOver = false;
 
-        public delegate void CellClickHandler(int row, int col);
+        public delegate void CellEventHandler(int row, int col);
         public delegate void EndGameHandler(bool isVictory);
 
-        public event CellClickHandler LeftClick;
-        public event CellClickHandler RightClick;
+        public event CellEventHandler LeftClick;
+        public event CellEventHandler RightClick;
+        public event CellEventHandler CellHovered;
         public event EndGameHandler GameOver;
-
 
         public MapWidget(MainForm form, Map map, GameUI ui, int cellSize, int xPad, int yPad)
         {
@@ -61,6 +61,7 @@ namespace NMines
             LeftClick += OnLeftButtonClick;
             RightClick += OnRightButtonClick;
             GameOver += OnGameOver;
+            CellHovered += OnCellHover;
 
             DoubleBuffered = true;
 
@@ -95,11 +96,15 @@ namespace NMines
                     MoveSelection(0, 1);
                     break;
                 case Keys.O:
-                    KeyboardLeftClick();
+                    LeftClick?.Invoke(keyboardHoveredRow, keyboardHoveredCol);
+                    blockMouseHover = true;
                     break;
                 case Keys.P:
-                    KeyboardRightClick();
-                    keyboardFlagSet = true;
+                    RightClick?.Invoke(keyboardHoveredRow, keyboardHoveredCol);
+                    blockMouseHover = true;
+                    break;
+                case Keys.I:
+                    blockMouseHover = !blockMouseHover;
                     break;
             }
         }
@@ -130,22 +135,6 @@ namespace NMines
                 }
             }
             Invalidate();
-        }
-
-
-        private void KeyboardLeftClick()
-        {
-            if (isGameOver) return;
-
-            OnLeftButtonClick(keyboardHoveredRow, keyboardHoveredCol);
-        }
-
-        private void KeyboardRightClick()
-        {
-            if (isGameOver) return;
-
-            OnRightButtonClick(keyboardHoveredRow, keyboardHoveredCol);
-            keyboardFlagSet = false;
         }
 
         private void MoveSelection(int dRow, int dCol)
@@ -253,23 +242,30 @@ namespace NMines
             MessageBox.Show(msgText);
         }
 
+
+        private void OnCellHover(int row, int col)
+        {
+            hoveredRow = row;
+            hoveredCol = col;
+
+            // синхронизация координат клавиатуры с координатами мыши
+            keyboardHoveredRow = row;
+            keyboardHoveredCol = col;
+
+            Invalidate();
+        }
+
+
         private void MapWidget_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!keyboardFlagSet)
+            if (!blockMouseHover)
             {
                 int row = (e.Y - yPad) / cellSize;
                 int col = (e.X - xPad) / cellSize;
 
                 if (row != hoveredRow || col != hoveredCol)
                 {
-                    hoveredRow = row;
-                    hoveredCol = col;
-
-                    // синхронизация координат клавиатуры с координатами мыши
-                    keyboardHoveredRow = row;
-                    keyboardHoveredCol = col;
-
-                    Invalidate();
+                    CellHovered?.Invoke(row, col);
                 }
             }
         }
@@ -295,7 +291,7 @@ namespace NMines
                     cells[i, j].IsHovered = isKeyboardHovered;
                     cells[i, j].Draw(graphics, x, y);
 
-                    if (isKeyboardHovered || (isMouseHovered && keyboardFlagSet))
+                    if (isKeyboardHovered || (isMouseHovered && blockMouseHover))
                     {
                         using (Pen pen = new Pen(Color.Black, 2))
                         {
