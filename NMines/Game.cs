@@ -118,8 +118,8 @@ namespace NMines
             ToolStripComboBox comboBox = sender as ToolStripComboBox;
             string selectedDifficulty = comboBox.SelectedItem.ToString();
 
-            string caption = $"You select difficulty \"{selectedDifficulty}\".";
-            string messageToShow = "The game will be restarted. Are you sure?";
+            string caption = $"Вы выбрали сложность \"{selectedDifficulty}\".";
+            string messageToShow = "Игра будет перезапущена. Подтвердите свой выбор.";
             var confirmResult = MessageBox.Show(messageToShow, caption, MessageBoxButtons.YesNo);
             if (confirmResult == DialogResult.Yes)
             {

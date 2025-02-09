@@ -40,21 +40,28 @@ namespace NMines.Widgets
 
             InitDifficultyCombobox();
 
-            GameToolbar.Items.Add(new ToolStripLabel("Difficulty"));
+            GameToolbar.Items.Add(new ToolStripLabel("Сложность"));
             GameToolbar.Items.Add(DifficultyCombobox);
             GameToolbar.Items.Add(new ToolStripSeparator());
 
-            var saveButton = new ToolStripButton("Save game");
+            var saveButton = new ToolStripButton("Сохранить");
             saveButton.Click += GameToolbarSave_Click;
             saveButton.Font = new Font("Segoe UI", 8);
             GameToolbar.Items.Add(saveButton);
 
             GameToolbar.Items.Add(new ToolStripSeparator());
 
-            var loadButton = new ToolStripButton("Load game");
+            var loadButton = new ToolStripButton("Загрузить");
             loadButton.Click += GameToolbarLoad_Click;
             loadButton.Font = new Font("Segoe UI", 8);
             GameToolbar.Items.Add(loadButton);
+
+            GameToolbar.Items.Add(new ToolStripSeparator());
+
+            var helpButton = new ToolStripButton("Справка");
+            helpButton.Click += GameToolbarHelp_Click;
+            helpButton.Font = new Font("Segoe UI", 8);
+            GameToolbar.Items.Add(helpButton);
         }
 
         private void GameToolbarSave_Click(object sender, EventArgs e)
@@ -65,14 +72,14 @@ namespace NMines.Widgets
                 GameState state = Game.GetGameState();
                 formatter.Serialize(stream, state);
             }
-            MessageBox.Show("The game is saved.");
+            MessageBox.Show("Игра сохранена.");
         }
 
         private void GameToolbarLoad_Click(object sender, EventArgs e)
         {
             if (!File.Exists("data.bin"))
             {
-                MessageBox.Show("No saved game found.");
+                MessageBox.Show("Нет сохраненной игры.");
                 return;
             }
 
@@ -82,7 +89,16 @@ namespace NMines.Widgets
                 GameState state = (GameState)formatter.Deserialize(stream);
                 Game.SetGameState(state);
             }
-            MessageBox.Show("The game is loaded.");
+            MessageBox.Show("Игра загружена.");
+        }
+
+
+        private void GameToolbarHelp_Click(object sender, EventArgs e)
+        {
+            TimeLabel.StopTimer();
+            HelpForm helpForm = new HelpForm();
+            helpForm.FormClosed += (s, args) => TimeLabel.StartTimer();
+            helpForm.ShowDialog();
         }
 
         private void InitDifficultyCombobox()

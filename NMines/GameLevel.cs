@@ -1,9 +1,9 @@
 ﻿namespace NMines
 {
-    public enum GameLevel : byte
+    public enum GameLevel
     {
-        EASY = 1,
-        MEDIUM = 2,
-        HARD = 3
+        EASY,
+        MEDIUM,
+        HARD
     }
 }

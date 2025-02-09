@@ -234,10 +234,10 @@ namespace NMines
             if (isVictory)
             {
                 string gameTime = ui.TimeLabel.GetGameTime();
-                msgText = $"You win!\nGame time: {gameTime} seconds.";
+                msgText = $"Вы выиграли!\nВремя: {gameTime} с.";
             }
             else
-                msgText = "You lose.";
+                msgText = "Вы проиграли.";
 
             MessageBox.Show(msgText);
         }
